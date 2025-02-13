@@ -1,29 +1,53 @@
 # vue-soundcloud
 
-This template should help get you started developing with Vue 3 in Vite.
+This project no longer uses the SoundCloud API and has switched to using the Spotify API. For documentation on how to use the Spotify API, refer to the [Spotify API Documentation](https://developer.spotify.com/documentation/web-api/tutorials/getting-started).
 
-## Recommended IDE Setup
+## Environment Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+1. **Node.js**
 
-## Customize configuration
+   This project recommends using **Node.js v22.14.0 (LTS)** for development and running. You can download and install Node.js from the following link: [Node.js Download](https://nodejs.org/zh-cn/download).
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+2. **Vue 3**
 
-## Project Setup
+   This project is built on Vue 3. If you're new to Vue.js, refer to the official documentation: [Vue.js Documentation](https://cn.vuejs.org/).
 
-```sh
-npm install
-```
+## How to Use
 
-### Compile and Hot-Reload for Development
+1. **Clone the Project**
 
-```sh
-npm run dev
-```
+   Clone the project using the following command:
 
-### Compile and Minify for Production
+   ```sh
+   git clone https://github.com/Sakurajima-sight/vue-soundcloud.git
+   ```
 
-```sh
-npm run build
-```
+2. **Install Dependencies**
+
+   Run the following command to install the required dependencies:
+
+   ```sh
+   npm install
+   ```
+
+3. **Configure `.env` File**
+
+   Configure a `.env` file in the root directory of the project and add your Spotify client ID and secret. For instructions on how to obtain these, visit the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
+
+4. **Development Mode**
+
+   Run the following command to start the development server:
+
+   ```sh
+   npm run dev
+   ```
+
+   This will start a hot-reloading development server that you can access in your browser.
+
+5. **Production Mode**
+
+   If you're ready to deploy the app, use the following command to build and minify the app:
+
+   ```sh
+   npm run build
+   ```
