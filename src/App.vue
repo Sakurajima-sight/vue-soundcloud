@@ -25,8 +25,12 @@ export default {
   /* 全局样式 */
   body {
     margin: 0; /* 去除页面边距 */
+    background: #f1f1f1;
   }
-
+  a {
+    text-decoration: none;
+    color: #000;
+  }
   /* app 根元素的样式 */
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -36,5 +40,8 @@ export default {
     color: #2c3e50; /* 设置文字颜色 */
     margin: 0; /* 去除页面默认的 margin */
     padding: 0; /* 去除页面默认的 padding */
+  }
+  .el-header {
+    padding: 0;
   }
 </style>

@@ -10,18 +10,19 @@ class Client {
     methods.forEach((method) => {
       this[method] = Client.requestWrapper(method);
     });
+    this.accessToken = null;  // 存储Access Token
+    this.tokenExpiration = 0; // 存储Token过期时间
   }
 
   // 获取Spotify的Access Token
   static async getAccessToken() {
-    const client_id = import.meta.env.VITE_SPOTIFY_CLIENT_ID;  // 获取client_id
-    const client_secret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;  // 获取client_secret
+    const client_id = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+    const client_secret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;
 
     // Base64编码client_id和client_secret
     const auth = btoa(`${client_id}:${client_secret}`);
 
     try {
-      // 发送请求获取Access Token
       const response = await axios.post('https://accounts.spotify.com/api/token', qs.stringify({
         grant_type: 'client_credentials',
       }), {
@@ -38,10 +39,26 @@ class Client {
     }
   }
 
+  // 获取有效的Access Token（带缓存机制）
+  async getValidAccessToken() {
+    const currentTime = Date.now() / 1000; // 当前时间（秒）
+
+    // 如果Access Token缓存存在且未过期，则直接返回
+    if (this.accessToken && this.tokenExpiration > currentTime) {
+      return this.accessToken;
+    }
+
+    // 否则，重新获取Token并缓存
+    const token = await Client.getAccessToken();
+    this.accessToken = token;
+    this.tokenExpiration = currentTime + 3600; // Token有效期为1小时
+    return token;
+  }
+
   // 请求包装器，处理具体的API请求
   static requestWrapper(method) {
     async function decorateRequest({ url, data, query }) {
-      const access_token = await Client.getAccessToken();  // 获取Token
+      const access_token = await Client.getInstance().getValidAccessToken();  // 获取有效Token
 
       const queryStrings = qs.stringify(query);  // 序列化查询参数
 
@@ -82,6 +99,26 @@ class Client {
       });
     };
   }
+
+  static async getArtistInfo(artistId) {
+    try {
+      const response = await Client.getInstance().get({
+        url: `artists/${artistId}`,  // Spotify API endpoint for artist info
+      });
+      return response;  // 返回整个艺术家信息
+    } catch (error) {
+      console.error('Error fetching artist info:', error);
+      throw new Error('Unable to fetch artist information');
+    }
+  }
+
+  // 获取Client实例
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new Client();
+    }
+    return this.instance;
+  }
 }
 
-export default new Client();  // 导出实例
+export default Client;   // 导出Client实例

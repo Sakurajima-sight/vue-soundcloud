@@ -8,7 +8,7 @@ export default {
       commit('GET_TRACKS');  
 
       // 发起 API 请求获取 tracks 数据（使用 Spotify 的 search API）
-      const response = await API.get({  
+      const response = await API.getInstance().get({  
         url: 'search',  
         query: {
           q: 'house',          // 搜索的关键词，这里是 house 标签的音乐

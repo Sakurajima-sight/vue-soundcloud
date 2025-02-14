@@ -1,84 +1,85 @@
 <template>
   <el-row type="flex" class="navbarWrapper" justify="center">
-    <el-col :span="20">
+    <el-col
+      :xs="24"
+      :sm="22"
+      :md="20"
+      :lg="18"
+      :xl="16"
+      class="wrapper"
+    >
       <el-menu
         mode="horizontal"
         background-color="#3a3f41"
         text-color="#fff"
         active-text-color="#ffd04b"
         class="navbar"
+        :collapse="false"
       >
-        <img src="../assets/logo.png" class="navbarLogo" />
-        <el-input
-          size="default"
-          placeholder="search music..."
-          :prefix-icon="searchIcon"
-          class="searchInput"
-          v-model:modelValue="searchText"
-          
-        >
-        </el-input>
+        <el-menu-item>
+          <img src="../assets/logo.png" class="logo" />
+        </el-menu-item>
+        <div class="searchContainer">
+          <el-input
+            size="default"
+            placeholder="search music..."
+            :prefix-icon="searchIcon"
+            class="searchInput"
+            v-model:modelValue="searchText"
+          >
+          </el-input>
+        </div>
       </el-menu>
     </el-col>
   </el-row>
 </template>
 
 <script>
-// 使用 Vue 3 中的 setup API
 import { ref } from 'vue';
-// 导入搜索图标
 import { Search } from '@element-plus/icons-vue';
 
 export default {
   setup() {
-    // 定义响应式数据
-    const searchText = ref(''); // 用于存储搜索框的输入内容
-    const searchIcon = Search; // 将图标作为非响应式数据返回
-
+    const searchText = ref('');
+    const searchIcon = Search;
     return {
-      searchText, // 返回绑定的值
-      searchIcon, // 返回图标
+      searchText,
+      searchIcon,
     };
   },
 };
 </script>
 
-<style>
-  .navbarWrapper {
+<style scoped>
+  .wrapper {
+    margin: 0 auto;
+    float: none;
+  }
+  .el-row {
     background: #3a3f41;
+    padding: 0 17px;
   }
-  .navbarWrapper .navbar {
+  .el-menu {
+    border: none;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
   }
-  .navbarWrapper .navbarLogo {
+  .el-menu.navbar {
+    border-bottom: #3a3f41;  /* 设置底部边框颜色 */
+  }
+  .logo {
     width: 170px;
-    margin: 0 20px;
+    margin-right: 20px;
   }
-  .navbarWrapper .searchInput {
+  .searchInput {
     width: 280px;
     margin: 13px 0;
   }
-  .navbarWrapper .searchInput .el-input__inner {
+  .searchInput .el-input__inner {
     background: #2b2b2b;
     border: none;
     outline: none;
     color: #fff;
   }
-  .navbarWrapper .searchInput .el-input__prefix {
-    background: #2b2b2b;
-    border: none;
-    outline: none;
-    color: #fff;
-  }
-  .navbarWrapper .searchInput .el-input__wrapper {
-    background: #2b2b2b;
-    border: none;
-    outline: none;
-    box-shadow: none;
-    color: #fff;
-  }  
-
-
 </style>

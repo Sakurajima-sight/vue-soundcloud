@@ -1,25 +1,37 @@
 <template>
   <div>
-    <h1>Home</h1> 
-    <!-- 按钮点击后获取曲目 -->
-    <button @click="getItems">Get Tracks</button>
-     
-    <!-- 如果获取曲目失败，显示错误信息 -->
-    <p v-if="getTracksFail">Failed to get tracks</p>
-    
-    <!-- 如果正在加载，显示加载状态 -->
-    <h1 v-if="getTracksLoading">Loading...</h1>
-
-    <!-- 遍历曲目列表并显示每个曲目的标题 -->
-    <h1 v-for="(track, i) in tracks" :key="i">{{ track.name }}</h1>
+    <el-row :gutter="50" v-show="getTracksLoading">
+      <el-col :span="24">
+        <h1>Loading...</h1>
+      </el-col>
+    </el-row>     
+    <el-row>
+      <el-col
+        :xs="24"
+        :sm="22"
+        :md="20"
+        :lg="18"
+        :xl="16"
+        class="itemsWrapper"
+      >
+        <el-row :gutter="15">
+          <song-item v-for="track in tracks" :key="track.id" :trackData="track" />
+        </el-row>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
 import { useStore } from 'vuex';
 import { computed } from 'vue';
+import SongItem from '../components/SongItem.vue';
+import { onMounted } from 'vue';
 
 export default {
+  components: {
+    SongItem,
+  },
   setup() {
     // 访问 Vuex store
     const store = useStore();
@@ -33,6 +45,10 @@ export default {
     const getItems = () => {
       store.dispatch('getTracks'); // 触发 action，获取数据
     };
+    
+    onMounted(() => {
+      getItems();  // 页面加载时触发获取数据
+    });
 
     // 返回计算属性和方法
     return {
@@ -46,6 +62,9 @@ export default {
 
 </script>
 
-<style>
-/* 可以在这里添加自定义样式 */
+<style scoped>
+  .itemsWrapper {
+    margin: 0 auto;
+    float: none;
+  }
 </style>

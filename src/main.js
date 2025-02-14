@@ -10,7 +10,12 @@ import {
   ElInput,
   ElCol,
   ElMenu,
-  ElIcon
+  ElIcon,
+  ElContainer,
+  ElHeader,
+  ElMain,
+  ElFooter,
+  ElMenuItem
 } from 'element-plus'
 import 'element-plus/dist/index.css'  // 引入 Element Plus 样式
 import store from './store'
@@ -29,7 +34,12 @@ app
   .use(store)
   .use(router)
   .use(ElIcon)
-  .use(ElLoading);
+  .use(ElContainer)
+  .use(ElHeader)
+  .use(ElFooter)  
+  .use(ElMain)
+  .use(ElLoading)
+  .use(ElMenuItem);
 
 // 设置全局属性
 app.config.globalProperties.$loading = ElLoading.service;
