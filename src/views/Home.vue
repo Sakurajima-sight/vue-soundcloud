@@ -1,17 +1,17 @@
 <template>
   <div>
     <h1>Home</h1> 
+    <!-- 按钮点击后获取曲目 -->
+    <button @click="getItems">Get Tracks</button>
+     
     <!-- 如果获取曲目失败，显示错误信息 -->
     <p v-if="getTracksFail">Failed to get tracks</p>
-
+    
     <!-- 如果正在加载，显示加载状态 -->
     <h1 v-if="getTracksLoading">Loading...</h1>
 
     <!-- 遍历曲目列表并显示每个曲目的标题 -->
-    <h1 v-for="(track, i) in tracks" :key="i">{{ track.title }}</h1>
-
-    <!-- 按钮点击后获取曲目 -->
-    <button @click="getItems">Get Tracks</button>
+    <h1 v-for="(track, i) in tracks" :key="i">{{ track.name }}</h1>
   </div>
 </template>
 
@@ -31,18 +31,19 @@ export default {
 
     // 定义获取曲目的方法
     const getItems = () => {
-      store.dispatch('getTracks');
+      store.dispatch('getTracks'); // 触发 action，获取数据
     };
 
     // 返回计算属性和方法
     return {
+      getItems,
       getTracksLoading,
       tracks,
       getTracksFail,
-      getItems,
     };
   },
 };
+
 </script>
 
 <style>

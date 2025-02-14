@@ -11,9 +11,10 @@ import {
   ElCol,
   ElMenu,
   ElIcon
-} from 'element-plus';
-import 'element-plus/dist/index.css';  // 引入 Element Plus 样式
-import router from './router';
+} from 'element-plus'
+import 'element-plus/dist/index.css'  // 引入 Element Plus 样式
+import store from './store'
+import router from './router'
 
 // 创建 Vue 应用实例
 const app = createApp(App);
@@ -25,6 +26,7 @@ app
   .use(ElInput)
   .use(ElCol)
   .use(ElMenu)
+  .use(store)
   .use(router)
   .use(ElIcon)
   .use(ElLoading);
