@@ -22,7 +22,7 @@
 
 
 <script>
-import Client from '@/utils/xhrWrapper';
+import Client from '@/utils/xhrWrapperSpotify';
 export default {
   props: {
     trackData: Object, // 接收的 trackData 是一个 Object 类型

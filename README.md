@@ -32,7 +32,7 @@ This project no longer uses the SoundCloud API and has switched to using the Spo
 
 3. **Configure `.env` File**
 
-   Configure a `.env` file in the root directory of the project and add your Spotify client ID and secret. For instructions on how to obtain these, visit the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
+   Configure a `.env` file in the root directory of the project and add your Spotify client ID and secret. For instructions on how to obtain these, visit the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard). Additionally, add your Last.fm API key. For more information on how to obtain it, visit the [Last.fm API Account](https://www.last.fm/api/accounts) and [Last.fm API Documentation](https://www.last.fm/api).
 
 4. **Development Mode**
 
@@ -51,3 +51,4 @@ This project no longer uses the SoundCloud API and has switched to using the Spo
    ```sh
    npm run build
    ```
+

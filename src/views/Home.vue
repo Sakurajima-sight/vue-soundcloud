@@ -47,7 +47,7 @@ export default {
     };
     
     onMounted(() => {
-      getItems('home');  // 页面加载时获取 'house' 类别的 'track' 类型的歌曲
+      getItems('house');  // 页面加载时获取 'house' 类别的 'track' 类型的歌曲
     });
 
     // 返回计算属性和方法

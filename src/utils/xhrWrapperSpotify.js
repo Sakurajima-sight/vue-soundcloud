@@ -4,11 +4,11 @@ import qs from 'qs';
 // 定义支持的HTTP请求方法
 const methods = ['get', 'post', 'put', 'patch', 'del', 'head'];
 
-class Client {
+class SpotifyClient {
   constructor() {
     // 为每种请求方法创建对应的请求方法
     methods.forEach((method) => {
-      this[method] = Client.requestWrapper(method);
+      this[method] = SpotifyClient.requestWrapper(method);
     });
     this.accessToken = null;  // 存储Access Token
     this.tokenExpiration = 0; // 存储Token过期时间
@@ -48,7 +48,7 @@ class Client {
     }
 
     // 否则，重新获取Token并缓存
-    const token = await Client.getAccessToken();
+    const token = await SpotifyClient.getAccessToken();
     this.accessToken = token;
     this.tokenExpiration = currentTime + 3600; // Token有效期为1小时
     return token;
@@ -57,7 +57,7 @@ class Client {
   // 请求包装器，处理具体的API请求
   static requestWrapper(method) {
     async function decorateRequest({ url, data, query }) {
-      const access_token = await Client.getInstance().getValidAccessToken();  // 获取有效Token
+      const access_token = await SpotifyClient.getInstance().getValidAccessToken();  // 获取有效Token
 
       const queryStrings = qs.stringify(query);  // 序列化查询参数
 
@@ -101,7 +101,7 @@ class Client {
 
   static async getArtistInfo(artistId) {
     try {
-      const response = await Client.getInstance().get({
+      const response = await SpotifyClient.getInstance().get({
         url: `artists/${artistId}`,  // Spotify API endpoint for artist info
       });
       return response;  // 返回整个艺术家信息
@@ -111,13 +111,13 @@ class Client {
     }
   }
 
-  // 获取Client实例
+  // 获取SpotifyClient实例
   static getInstance() {
     if (!this.instance) {
-      this.instance = new Client();
+      this.instance = new SpotifyClient();
     }
     return this.instance;
   }
 }
 
-export default Client;   // 导出Client实例
+export default SpotifyClient;   // 导出SpotifyClient实例
