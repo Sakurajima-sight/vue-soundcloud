@@ -8,6 +8,7 @@ const defaultState = {
   getTracksLoading: false, // 标识是否正在加载数据
   tracks: null, // 存储获取到的 tracks 数据
   getTracksFail: false, // 标识数据获取是否失败
+  activeGenre: null, // 存储当前选择的音乐类型
 };
 
 // Vuex 模块配置

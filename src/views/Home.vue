@@ -42,12 +42,12 @@ export default {
     const getTracksFail = computed(() => store.getters.getTracksFail);
 
     // 定义获取曲目的方法
-    const getItems = () => {
-      store.dispatch('getTracks'); // 触发 action，获取数据
+    const getItems = (genre) => {
+      store.dispatch('getTracks', {genre}); // 触发 action，获取数据
     };
     
     onMounted(() => {
-      getItems();  // 页面加载时触发获取数据
+      getItems('home');  // 页面加载时获取 'house' 类别的 'track' 类型的歌曲
     });
 
     // 返回计算属性和方法

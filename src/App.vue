@@ -43,5 +43,6 @@ export default {
   }
   .el-header {
     padding: 0;
+    height: auto !important; /* 使得 div 高度自动根据内容变化，并强制应用 */
   }
 </style>

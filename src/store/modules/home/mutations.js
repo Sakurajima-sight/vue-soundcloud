@@ -7,7 +7,8 @@ export default {
   // GET_TRACKS_SUCCESS：请求成功时触发此 mutation，保存获取到的数据并设置加载状态为 false
   GET_TRACKS_SUCCESS: (state, data) => {
     state.getTracksLoading = false;  // 设置加载状态为 false
-    state.tracks = data;  // 保存 tracks 数据
+    state.tracks = data.tracks;  // 保存请求成功时返回的 tracks 数据
+    state.activeGenre = data.genre;  // 保存请求成功时返回的音乐类型（genre）
   },
 
   // GET_TRACKS_FAIL：请求失败时触发此 mutation，记录失败的状态并设置加载状态为 false

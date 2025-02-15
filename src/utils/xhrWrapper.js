@@ -34,7 +34,6 @@ class Client {
 
       return response.data.access_token;  // 返回Access Token
     } catch (error) {
-      console.error('Error fetching access token:', error);
       throw new Error('Unable to fetch access token');
     }
   }

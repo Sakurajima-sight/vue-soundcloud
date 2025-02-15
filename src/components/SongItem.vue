@@ -45,7 +45,6 @@ export default {
         console.log('No artist images found'); // 如果没有图片则输出提示
       }
     } catch (error) {
-      console.error('Error fetching artist image:', error);  // 捕获并输出错误
       this.artistImage = '';  // 错误时处理，或使用默认头像
     }
   },
@@ -59,7 +58,7 @@ export default {
   .wrapper {
     background: #fff; /* 设置背景颜色 */
     overflow: hidden;  /* 隐藏溢出的内容 */
-    height: 155px; /* 设置容器高度 */
+    height: 160px; /* 设置容器高度 */
     padding: 8px; /* 设置内边距 */
     box-sizing: border-box; /* 包括边框和内边距 */
     border: 1px solid #e3e3e3; /* 设置边框 */
@@ -70,14 +69,14 @@ export default {
     background-repeat: no-repeat; /* 不重复背景图 */
     background-size: cover; /* 背景图覆盖容器 */
     background-position: center center; /* 背景图居中 */
+    float: left;
   }
   .avatarWrapper {
-    width: 25%; /* 头像容器占宽度的 25% */
     float: left; /* 向左浮动 */
   }
   .avatarWrapper .avatar {
-    width: 35px; /* 设置头像宽度 */
-    height: 35px; /* 设置头像高度 */
+    width: 40px; /* 设置头像宽度 */
+    height: 40px; /* 设置头像高度 */
     border-radius: 20px; /* 设置圆形头像 */
     margin: 10px 10px 10px 0; /* 设置头像的外边距 */
   }
@@ -93,17 +92,17 @@ export default {
     display: block; /* 使标题变成块级元素 */
   }
   .titleWrappper .title.trackTitle {
-    margin: 10px 0 2px; /* 设置歌曲标题的外边距 */
+    margin: 13px 0 5px; /* 设置歌曲标题的外边距 */
     font-size: 13px; /* 设置歌曲标题的字体大小 */
   }
   .titleWrappper .title.trackTitle:hover {
-    color: #555; /* 鼠标悬停时歌曲标题的颜色变化 */
+    color: #777; /* 鼠标悬停时歌曲标题的颜色变化 */
   }
   .titleWrappper .title.username {
-    color: #3381b7; /* 设置艺术家名称的颜色 */
+    color: #378dc7; /* 设置艺术家名称的颜色 */
     font-size: 12px; /* 设置艺术家名称的字体大小 */
   }
   .titleWrappper .title.username:hover {
-    color: #27517a; /* 鼠标悬停时艺术家名称的颜色变化 */
+    color: #204365; /* 鼠标悬停时艺术家名称的颜色变化 */
   }
 </style>

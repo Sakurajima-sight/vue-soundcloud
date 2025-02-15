@@ -15,6 +15,7 @@ import {
   ElHeader,
   ElMain,
   ElFooter,
+  ElButtonGroup,
   ElMenuItem
 } from 'element-plus'
 import 'element-plus/dist/index.css'  // 引入 Element Plus 样式
@@ -39,6 +40,7 @@ app
   .use(ElFooter)  
   .use(ElMain)
   .use(ElLoading)
+  .use(ElButtonGroup)
   .use(ElMenuItem);
 
 // 设置全局属性
