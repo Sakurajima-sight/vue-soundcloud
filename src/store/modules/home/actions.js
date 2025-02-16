@@ -3,7 +3,7 @@ import LastfmAPI from '@/utils/xhrWrapperLastfm';
 
 export default {
   // getTracks: 获取 tracks 数据的异步操作
-  async getTracks({ commit }, { genre }) { 
+  async getTracks({ commit }, { genre, page }) { 
     try {
       // 提交 mutation 通知正在加载 tracks 数据 
       commit('GET_TRACKS');  
@@ -16,7 +16,9 @@ export default {
           tag: genre,        // 标签名，例：'house'
           api_key: import.meta.env.VITE_LASTFM_API_KEY,  // 使用 Last.fm API Key
           format: 'json',
-          limit: 50,          // 获取最多 50 首热门歌曲
+          limit: 16,         // 每页返回16条歌曲数据
+          page: page,        // 根据页数来设置分页
+          linked_partitioning: 1,  // 启用 linked_partitioning（分页）
         },
       });
 
@@ -41,10 +43,13 @@ export default {
       );
 
       // 如果请求成功，提交 mutation 更新 tracks 数据
-      commit('GET_TRACKS_SUCCESS', { tracks: spotifyResults, genre });  // 更新结果到 tracks
+      commit('GET_TRACKS_SUCCESS', { tracks: spotifyResults, genre, page });  // 更新结果到 tracks
     } catch (error) { 
       // 如果请求失败，提交 mutation 处理错误 
       commit('GET_TRACKS_FAIL', error);  
     } 
+  },
+  clearTracks: (context) => {
+    context.commit('CLEAR_TRACKS');
   },
 };

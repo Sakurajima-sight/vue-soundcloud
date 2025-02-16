@@ -5,10 +5,11 @@ import mutations from './mutations'; // 用于直接修改 state 的值
 
 // 定义初始的 state 状态
 const defaultState = {
-  getTracksLoading: false, // 标识是否正在加载数据
-  tracks: null, // 存储获取到的 tracks 数据
+  getTracksLoading: null, // 标识是否正在加载数据
+  tracks: [], // 存储获取到的曲目数据，类型为数组，用于展示或处理
   getTracksFail: false, // 标识数据获取是否失败
   activeGenre: null, // 存储当前选择的音乐类型
+  lastPage: null, // 存储当前页数，用于分页控制，确保每次加载正确的下一页数据
 };
 
 // Vuex 模块配置
