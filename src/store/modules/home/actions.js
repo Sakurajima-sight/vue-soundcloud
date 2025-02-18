@@ -1,4 +1,4 @@
-import SpotifyAPI from '@/utils/xhrWrapperSpotify';
+import SpotifyUserClient from '@/utils/SpotifyUserClient';
 import LastfmAPI from '@/utils/xhrWrapperLastfm';
 
 export default {
@@ -24,11 +24,11 @@ export default {
 
       // 从 Last.fm 返回的歌曲数据中提取歌曲名称
       const topTracks = lastfmResponse.tracks.track.map(track => track.name);
-
+      
       // 使用 Spotify API 搜索每首曲目，获取相关的结果
       const spotifyResults = await Promise.all(
         topTracks.map(async (trackName) => {
-          const response = await SpotifyAPI.getInstance().get({
+          const response = await SpotifyUserClient.getInstance().get({
             url: 'search',
             query: {
               q: trackName,       // 使用 Last.fm 中获取的歌曲名
@@ -36,20 +36,29 @@ export default {
               limit: 1,           // 限制返回的结果数量为 1 条
               offset: 0,          // 不使用分页
             },
-          });
+          });  
 
           return response.tracks.items[0];  // 获取第一条匹配的结果
         })
       );
 
       // 如果请求成功，提交 mutation 更新 tracks 数据
-      commit('GET_TRACKS_SUCCESS', { tracks: spotifyResults, genre, page });  // 更新结果到 tracks
+      commit('GET_TRACKS_SUCCESS', { tracks: spotifyResults, genre, page});  // 更新结果到 tracks
     } catch (error) { 
       // 如果请求失败，提交 mutation 处理错误 
       commit('GET_TRACKS_FAIL', error);  
     } 
   },
+  // 用于重置或清除 tracks 数据的状态
   clearTracks: (context) => {
-    context.commit('CLEAR_TRACKS');
+    context.commit('CLEAR_TRACKS');  // 提交 mutation 清空 tracks 数据
   },
+  // 提交 mutation 更新当前活动的曲目
+  setActiveTrack: (context, data) => {
+    context.commit('SET_ACTIVE_TRACK', data);  // data 是传入的新的活动曲目数据
+  },  
+  
+  setAccessToken: (context, token) => {
+    context.commit('SET_ACCESS_TOKEN', token);  // data 是传入的新的活动曲目数据
+  },  
 };

@@ -4,10 +4,15 @@
       <!-- 使用专辑的第一张图片作为背景图 -->
       <div
         :style="{ backgroundImage: `url(${trackData.album.images[0].url})` }"
-        class="artwork"
-      />
+        :class="`artwork${(activeTrack && (activeTrack.id === trackData.id)) ? ' active' : ''}`"
+        @click="onClickTrack(trackData)"
+      >
+        <div class="playOverlay">
+          <img src="../assets/icons/play.svg" />
+        </div>
+      </div>
       <div class="avatarWrapper">
-        <!-- 使用艺术家的头像作为图像 -->
+      <!-- 使用艺术家的头像作为图像 -->
         <img class="avatar" :src="artistImage" :alt="trackData.artists[0].name" />
       </div>
       <div class="titleWrappper">
@@ -22,31 +27,51 @@
 
 
 <script>
-import Client from '@/utils/xhrWrapperSpotify';
+import { ref, computed, onMounted } from 'vue';  // 引入 Vue 3 中需要的 API
+import { useStore } from 'vuex';  // 引入 Vuex 的 useStore
+import SpotifyUserClient from '@/utils/SpotifyUserClient';
+
 export default {
   props: {
-    trackData: Object, // 接收的 trackData 是一个 Object 类型
-  },
-  data() {
-    return {
-      artistImage: '', // 存储艺术家头像的 URL
-    };
-  },
-  async created() {
-    try {
-      const artistId = this.trackData.artists[0].id;  // 获取艺术家 ID
-      const artistInfo = await Client.getArtistInfo(artistId);  // 获取艺术家信息
-      
-      // 假设返回的 artistInfo 数据结构如下，找到第一个图片并设置为头像
-      if (artistInfo.images && artistInfo.images.length > 0) {
-        this.artistImage = artistInfo.images[0].url;  // 获取第一张图片作为头像
-        console.log('Artist image URL:', this.artistImage); // 输出头像URL
-      } else {
-        console.log('No artist images found'); // 如果没有图片则输出提示
-      }
-    } catch (error) {
-      this.artistImage = '';  // 错误时处理，或使用默认头像
+    trackData: {
+      type: Object,
+      required: true
+    },
+    onClickTrack: {
+      type: Function,
+      required: true
     }
+  },
+  setup(props) {
+    const artistImage = ref('');  // 使用 ref 来创建响应式数据
+
+    // 从 Vuex 获取计算属性
+    const store = useStore();
+    const activeTrack = computed(() => store.getters.activeTrack);  // 当前活动的 Track
+    
+    // 使用 onMounted 生命周期钩子
+    onMounted(async () => {
+      try {
+        const artistId = props.trackData.artists[0].id;  // 获取艺术家 ID
+        const artistInfo = await SpotifyUserClient.getArtistInfo(artistId);  // 获取艺术家信息
+        
+        // 假设返回的 artistInfo 数据结构如下，找到第一个图片并设置为头像
+        if (artistInfo.images && artistInfo.images.length > 0) {
+          artistImage.value = artistInfo.images[0].url;  // 获取第一张图片作为头像
+          console.log('Artist image URL:', artistImage.value); // 输出头像URL
+        } else {
+          console.log('No artist images found'); // 如果没有图片则输出提示
+        }
+      } catch (error) {
+        artistImage.value = '';  // 错误时处理，或使用默认头像
+        console.log('Error fetching artist info:', error);
+      }
+    });
+
+    return {
+      artistImage,
+      activeTrack
+    };
   },
 };
 </script>
@@ -70,7 +95,43 @@ export default {
     background-size: cover; /* 背景图覆盖容器 */
     background-position: center center; /* 背景图居中 */
     float: left;
+    cursor: pointer;
+    position: relative;
+    background-color: #e1e1e1;  /* 设置专辑封面的背景色 */
   }
+
+  .artwork .playOverlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, .8);
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all linear .2s;
+  }
+
+  .artwork .playOverlay > img {
+    width: 40px;
+    margin-top: -30px;
+    opacity: 0;
+    transition: all linear .2s;
+  }
+
+  .artwork:hover .playOverlay, .artwork.active .playOverlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .artwork:hover .playOverlay > img, .artwork.active .playOverlay > img {
+    margin-top: 0;
+    opacity: 1;
+  }
+
   .avatarWrapper {
     float: left; /* 向左浮动 */
   }
@@ -106,3 +167,4 @@ export default {
     color: #204365; /* 鼠标悬停时艺术家名称的颜色变化 */
   }
 </style>
+  
