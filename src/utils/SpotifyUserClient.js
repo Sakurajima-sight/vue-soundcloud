@@ -103,6 +103,27 @@ class SpotifyUserClient {
     }
   }
 
+  // 控制播放器行为
+  static async controlPlayback(action, trackUri) {
+    try {
+      // 根据不同的操作，选择 PUT 或 POST 方法
+      const method = ['next', 'previous', 'queue'].includes(action) ? 'post' : 'put';
+
+      // 使用 requestWrapper 发送请求
+      const response = await SpotifyUserClient.getInstance()[method]({
+        url: `me/player/${action}`,
+        // query: { uri: trackUri }, // 如果有 trackUri 传递则包含在请求体中
+        data: { uris: [trackUri] }
+      });
+
+      return response;  // 成功时返回响应数据
+    } catch (error) {
+      console.error('Error controlling playback:', error);
+      throw new Error('Unable to control playback');
+    }
+  }
+
+
   // 获取 SpotifyUserClient 实例
   static getInstance() {
     if (!this.instance) {

@@ -5,6 +5,8 @@ export default {
   // 获取当前的访问令牌
   accessToken: (state) => state.accessToken,
 
+  spotifyPlayer: state => state.spotifyPlayer,
+
   // 获取 tracks 的数据
   tracks: (state) => state.tracks,
 

@@ -80,6 +80,7 @@ export default {
     const getItems = (genre) => {
       store.dispatch('clearTracks');  // 清除之前的曲目数据
       store.dispatch('getTracks', { genre, page: 1 });  // 获取新的曲目数据，从第 1 页开始
+      store.dispatch('setActiveTrack', null);  // 调用 Vuex 中的 'setActiveTrack' action，设置活动曲目为 null
     };
 
     // 在页面挂载时执行一次获取 'house' 类型的曲目

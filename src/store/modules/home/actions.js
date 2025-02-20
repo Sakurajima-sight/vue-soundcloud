@@ -60,5 +60,9 @@ export default {
   
   setAccessToken: (context, token) => {
     context.commit('SET_ACCESS_TOKEN', token);  // data 是传入的新的活动曲目数据
-  },  
+  },
+  
+  setSpotifyPlayer: (context, player) => {
+    context.commit('SET_SPOTIFY_PLAYER', player);
+  }
 };

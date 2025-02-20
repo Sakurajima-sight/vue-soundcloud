@@ -32,4 +32,8 @@ export default {
   SET_ACCESS_TOKEN: (state, token) => {
     state.accessToken = token;
   },
+
+  SET_SPOTIFY_PLAYER: (state, player) => {
+    state.spotifyPlayer = player;
+  },
 };

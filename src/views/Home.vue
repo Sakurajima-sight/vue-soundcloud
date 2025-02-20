@@ -61,6 +61,7 @@ export default {
         store.dispatch('setActiveTrack', null);
       } else {
         store.dispatch('setActiveTrack', trackData);
+        console.log("activeTrack: ", activeTrack.value.uri);
       }
     };
 

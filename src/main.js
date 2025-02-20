@@ -16,7 +16,8 @@ import {
   ElMain,
   ElFooter,
   ElButtonGroup,
-  ElMenuItem
+  ElMenuItem,
+  ElSlider
 } from 'element-plus'
 import 'element-plus/dist/index.css'  // 引入 Element Plus 样式
 import store from './store'
@@ -41,8 +42,9 @@ app
   .use(ElMain)
   .use(ElLoading)
   .use(ElButtonGroup)
-  .use(ElMenuItem);
-
+  .use(ElMenuItem)
+  .use(ElSlider);
+  
 // 设置全局属性
 app.config.globalProperties.$loading = ElLoading.service;
 app.config.globalProperties.$msgbox = ElMessageBox;
