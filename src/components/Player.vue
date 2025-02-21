@@ -42,8 +42,6 @@ export default {
   setup() {
     const store = useStore();
 
-    // 从 Vuex 中获取 access token
-    const accessToken = computed(() => store.getters.accessToken);
     const activeTrack = computed(() => store.getters.activeTrack);  // 当前活动的 Track
     const errorMessage = ref(""); // 用于存储错误消息
     const player = computed(() => store.getters.spotifyPlayer);
@@ -51,21 +49,19 @@ export default {
     // 播放器状态
     const isPlay = ref(false); // 用于控制播放/暂停的状态
     const tempActiveTrack = ref(null);
-    const playerPlay = ref(false);
+    const playerPlay = ref(false); // 歌曲是否加载完成
     
     const seekRange = ref(0);  // 当前曲目的总时长（秒）
     const position = ref(0);  // 当前播放进度（秒）
     const duration = ref(0);  // 用于控制 seekBar 的进度
 
-    const isSeeking = ref(false);
     let intervalId;
 
     const handleSeekChange = async (data) => {
       clearInterval(intervalId);
-      if (isSeeking.value) return;  // 防止重复执行 seek
-      isSeeking.value = true;
-      const nextPosition = Math.min(Math.max(Math.round(data * (duration.value / 100)), 0), duration.value);
       
+      const nextPosition = Math.min(Math.max(Math.round(data * (duration.value / 100)), 0), duration.value);
+
       try {
         await SpotifyUserClient.seekToPosition(nextPosition);
         seekRange.value = (nextPosition / duration.value) * 100;
@@ -77,40 +73,39 @@ export default {
       } catch (error) {
         console.error('发生错误:', error);
       } finally {
-        isSeeking.value = false;  // 释放标志位
         intervalId = setInterval(updatePlayerState, 500); // 设置定时器  // 确保在 seek 完成后手动调用 updatePlayerState
       }
     };
 
     const updatePlayerState = async () => {
-      if (isSeeking.value) return
       if (isPlay.value && player.value) {
         try {
           const state = await player.value.getCurrentState(); 
-          if (isSeeking.value) return
           const currentTrackUri = state.track_window.current_track.uri;
-          
+
           if (!state) {
             console.log("无法获取播放器状态");
             return;
           }
+
           if (activeTrack.value.uri != currentTrackUri) {
             position.value = 0;
             duration.value = 0;
-
           } else {
-            if (isSeeking.value) {
-              handleSeekChange(seekRange);
-              return
-            } else {
-              if (state.position > 100)
-                playerPlay.value = true;
-              // 获取当前播放位置和总时长
-              position.value = state.position / 1000; // 以毫秒为单位
-              duration.value = state.duration / 1000; // 以毫秒为单位
-              seekRange.value = position.value / (duration.value / 100)
+            if (!state.paused) {
+              playerPlay.value = true;
+            } 
+            
+            // 获取当前播放位置和总时长
+            position.value = state.position / 1000; // 以毫秒为单位
+            duration.value = state.duration / 1000; // 以毫秒为单位
+            seekRange.value = position.value / (duration.value / 100);
+            if (Math.round(position.value) === Math.round(duration.value)) {
+              position.value = 0;
+              duration.value = 0;
+              playerPlay.value = false;
+              isPlay.value = false;
             }
-
           }
         } catch (error) {
           console.error("获取播放器状态时发生错误:", error);
@@ -221,8 +216,6 @@ export default {
 
     return {
       playerPlay,
-      accessToken,
-      errorMessage,
       activeTrack,
       isPlay,
       handlePlay,
