@@ -104,15 +104,11 @@ class SpotifyUserClient {
   }
 
   // 控制播放器行为
-  static async controlPlayback(action, trackUri) {
+  static async startPlayback(action, trackUri) {
     try {
-      // 根据不同的操作，选择 PUT 或 POST 方法
-      const method = ['next', 'previous', 'queue'].includes(action) ? 'post' : 'put';
-
       // 使用 requestWrapper 发送请求
-      const response = await SpotifyUserClient.getInstance()[method]({
+      const response = await SpotifyUserClient.getInstance()['put']({
         url: `me/player/${action}`,
-        // query: { uri: trackUri }, // 如果有 trackUri 传递则包含在请求体中
         data: { uris: [trackUri] }
       });
 
@@ -123,6 +119,20 @@ class SpotifyUserClient {
     }
   }
 
+    // 跳转到指定位置的方法
+    static async seekToPosition(nextPosition) {
+      try {
+        // 将秒数转换为毫秒
+        const response = await SpotifyUserClient.getInstance()['put']({
+          url: 'me/player/seek',
+          query: { position_ms: nextPosition * 1000 }, // position_ms 以毫秒为单位
+        });
+        return response;  // 成功时返回响应数据
+      } catch (error) {
+        console.error('跳转位置失败:', error);
+        throw new Error('无法跳转到指定位置');
+      }
+    }
 
   // 获取 SpotifyUserClient 实例
   static getInstance() {
