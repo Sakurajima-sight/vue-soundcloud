@@ -16,20 +16,21 @@
         <img :src="nextIcon" />
       </button>
     </div>
-    <span class="pastTime" >{{secondsToTime(position)}}</span>
-    <span class="remainingTime">{{`- ${secondsToTime(duration - position)}`}}</span>
+    <span class="pastTime" >{{secondsToTime(Math.round(position))}}</span>
+    <span class="remainingTime">{{`- ${secondsToTime(Math.round(duration - position))}`}}</span>
     <el-slider
       v-if="playerPlay"
       class="seekBar"
       v-model="seekRange"
       :show-tooltip="false"
       @change="handleSeekChange"
+      ref="sliderRef"
     />
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, watchEffect, onUnmounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import playIcon from '../assets/icons/play.svg';
 import pauseIcon from '../assets/icons/pause.svg';
@@ -57,9 +58,8 @@ export default {
 
     let intervalId;
 
-    const handleSeekChange = async (data) => {
-      clearInterval(intervalId);
-      
+    const handleSeekChange = async (data) => {      
+
       const nextPosition = Math.min(Math.max(Math.round(data * (duration.value / 100)), 0), duration.value);
 
       try {
@@ -70,11 +70,10 @@ export default {
           await player.value.resume();
           isPlay.value = true;
         }
+
       } catch (error) {
         console.error('发生错误:', error);
-      } finally {
-        intervalId = setInterval(updatePlayerState, 500); // 设置定时器  // 确保在 seek 完成后手动调用 updatePlayerState
-      }
+      } 
     };
 
     const updatePlayerState = async () => {
@@ -182,7 +181,7 @@ export default {
           // 清除之前的定时器
           clearInterval(intervalId);
           // 为新曲目设置定时器
-          intervalId = setInterval(updatePlayerState, 500); 
+          intervalId = setInterval(updatePlayerState, 100); 
           tempActiveTrack.value = activeTrack.value;
           isPlay.value = true; // 设置播放状态
         }
@@ -208,11 +207,40 @@ export default {
           clearInterval(intervalId);
         }
         if (newActiveTrack) {
-          intervalId = setInterval(updatePlayerState, 500); // 设置定时器
+          intervalId = setInterval(updatePlayerState, 100); // 设置定时器
         }
       }
     );
 
+    const sliderRef = ref(null);
+    let startMouseDown = false;
+    watchEffect(() => {
+      console.log("seekRange 变化为：", seekRange.value);
+
+      // 使用 nextTick 确保 DOM 渲染完成
+      const seekSliderButtonElement = sliderRef.value?.$el.querySelector('.el-slider__runway');
+      // 如果按钮元素存在，则绑定鼠标按下和松开事件
+      if (seekSliderButtonElement) {
+        // 监听 mousedown 事件，表示鼠标按下
+        seekSliderButtonElement.addEventListener('mousedown', () => {
+          clearInterval(intervalId);
+          startMouseDown = true;
+          player.value.pause();
+          // 可以暂停播放等操作
+        });
+
+        // 监听 mouseup 事件，表示鼠标松开
+        window.addEventListener('mouseup', () => {
+          if (startMouseDown) {
+            handleSeekChange(seekRange.value);
+            player.value.resume();
+            startMouseDown = false;
+            intervalId = setInterval(updatePlayerState, 100);
+            // 你可以在这里处理鼠标松开后的逻辑，如恢复播放等
+          }
+        });
+      }
+    });
 
     return {
       playerPlay,
@@ -228,7 +256,8 @@ export default {
       playIcon,
       pauseIcon,
       nextIcon,
-      previousIcon
+      previousIcon,
+      sliderRef
     };
   },
 };
