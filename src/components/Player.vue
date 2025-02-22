@@ -59,25 +59,23 @@ export default {
     let intervalId;
 
     const handleSeekChange = async (data) => {      
+      if (startMouseDown.value) {
+        const nextPosition = Math.min(Math.max(Math.round(data * (duration.value / 100)), 0), duration.value);
+        try {
+          await SpotifyUserClient.seekToPosition(nextPosition);
+          if (!isPlay.value && nextPosition !== duration.value) {
+            await player.value.resume();
+            isPlay.value = true;
+          }
 
-      const nextPosition = Math.min(Math.max(Math.round(data * (duration.value / 100)), 0), duration.value);
-
-      try {
-        await SpotifyUserClient.seekToPosition(nextPosition);
-        seekRange.value = (nextPosition / duration.value) * 100;
-
-        if (!isPlay.value && nextPosition !== duration.value) {
-          await player.value.resume();
-          isPlay.value = true;
-        }
-
-      } catch (error) {
-        console.error('发生错误:', error);
-      } 
+        } catch (error) {
+          console.error('发生错误:', error);
+        } 
+      }
     };
 
     const updatePlayerState = async () => {
-      if (isPlay.value && player.value) {
+      if (!startMouseDown.value && isPlay.value && player.value) {
         try {
           const state = await player.value.getCurrentState(); 
           const currentTrackUri = state.track_window.current_track.uri;
@@ -93,12 +91,15 @@ export default {
           } else {
             if (!state.paused) {
               playerPlay.value = true;
-            } 
-            
+            } else {
+              playerPlay.value = false;
+              return
+            }
+            console.log("state.paused:", state.paused)
             // 获取当前播放位置和总时长
             position.value = state.position / 1000; // 以毫秒为单位
             duration.value = state.duration / 1000; // 以毫秒为单位
-            seekRange.value = position.value / (duration.value / 100);
+            seekRange.value = parseFloat((position.value / duration.value * 100).toFixed(1));
             if (Math.round(position.value) === Math.round(duration.value)) {
               position.value = 0;
               duration.value = 0;
@@ -111,7 +112,7 @@ export default {
         }
       }
     };
-
+    
     onUnmounted(() => {
       // 清除定时器，防止内存泄漏
       clearInterval(intervalId);
@@ -181,7 +182,7 @@ export default {
           // 清除之前的定时器
           clearInterval(intervalId);
           // 为新曲目设置定时器
-          intervalId = setInterval(updatePlayerState, 100); 
+          intervalId = setInterval(updatePlayerState, 200); 
           tempActiveTrack.value = activeTrack.value;
           isPlay.value = true; // 设置播放状态
         }
@@ -207,13 +208,16 @@ export default {
           clearInterval(intervalId);
         }
         if (newActiveTrack) {
-          intervalId = setInterval(updatePlayerState, 100); // 设置定时器
+          intervalId = setInterval(updatePlayerState, 200); // 设置定时器
         }
       }
     );
 
     const sliderRef = ref(null);
-    let startMouseDown = false;
+    const startMouseDown = ref(false);
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
     watchEffect(() => {
       console.log("seekRange 变化为：", seekRange.value);
 
@@ -224,21 +228,30 @@ export default {
         // 监听 mousedown 事件，表示鼠标按下
         seekSliderButtonElement.addEventListener('mousedown', () => {
           clearInterval(intervalId);
-          startMouseDown = true;
           player.value.pause();
+          startMouseDown.value = true;
           // 可以暂停播放等操作
         });
 
         // 监听 mouseup 事件，表示鼠标松开
         window.addEventListener('mouseup', () => {
-          if (startMouseDown) {
+          if (startMouseDown.value) {
             handleSeekChange(seekRange.value);
-            player.value.resume();
-            startMouseDown = false;
-            intervalId = setInterval(updatePlayerState, 100);
-            // 你可以在这里处理鼠标松开后的逻辑，如恢复播放等
+            for (let i = 0; i < 10; i++) {
+              player.value.resume();
+            }
+            startMouseDown.value = false;
           }
         });
+      }
+    });
+
+    watch(startMouseDown, (newVal, oldVal) => {
+      console.log('startMouseDown.value changed:', newVal, 'from:', oldVal);
+
+      if (!newVal){
+        setTimeout(() => {
+        intervalId = setInterval(updatePlayerState, 200);}, 600);
       }
     });
 
