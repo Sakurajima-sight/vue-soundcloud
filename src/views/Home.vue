@@ -8,7 +8,7 @@
       :xl="16"
       class="itemsWrapper"
     >
-      <el-row :gutter="15">
+      <el-row :gutter="15" v-if="(searchResults.length < 1)">
         <song-item 
           v-for="track in tracks" 
           :key="track.id" 
@@ -16,10 +16,18 @@
           :onClickTrack="handleClickTrack"
         />
       </el-row>
+      <el-row :gutter="15" v-if="searchResults.length > 0">
+        <song-item
+          v-for="(track, i) in searchResults"
+          :key="i"
+          :trackData="track"
+          :onClickTrack="handleClickTrack"
+        />
+      </el-row>
     </el-col>
 
     <el-col :xl="24">
-      <h1 v-show="getTracksLoading">Loading...</h1>
+      <h1 v-if="getTracksLoading || searchTracksLoading">Loading...</h1>
     </el-col>
   </div>
 </template>
@@ -48,6 +56,11 @@ export default {
     const lastPage = computed(() => store.getters.lastPage);
     const activeTrack = computed(() => store.getters.activeTrack);
 
+    const searchTracksLoading = computed(() => store.getters.searchTracksLoading);
+    const searchResults = computed(() => store.getters.searchResults);
+    const lastSearchPage = computed(() => store.getters.lastSearchPage);
+    const searchQuery = computed(() => store.getters.searchQuery);    
+
     onMounted(() => {
       setupScrollListener();  // 设置滚动监听
     });
@@ -72,8 +85,15 @@ export default {
           document.documentElement.scrollHeight - 50;
 
         if (bottomOfWindow && !getTracksLoading.value) {
-          const nextPage = lastPage.value ? lastPage.value + 1 : page.value + 1;
-          getItems(activeGenre.value || 'house', nextPage);
+          if (searchQuery.value) {
+            store.dispatch('search', {
+              page: lastSearchPage.value + 1,
+              query: searchQuery.value,
+            });
+          } else {
+            const nextPage = lastPage.value ? lastPage.value + 1 : page.value + 1;
+            getItems(activeGenre.value || 'house', nextPage);
+          }
         }
       };
 
@@ -85,6 +105,10 @@ export default {
     };
 
     return {
+      searchTracksLoading,
+      searchResults,
+      lastSearchPage,
+      searchQuery,
       getTracksLoading,
       tracks,
       getItems,

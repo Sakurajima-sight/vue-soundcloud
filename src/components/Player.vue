@@ -215,9 +215,7 @@ export default {
 
     const sliderRef = ref(null);
     const startMouseDown = ref(false);
-    function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
+
     watchEffect(() => {
       console.log("seekRange 变化为：", seekRange.value);
 
@@ -230,7 +228,6 @@ export default {
           clearInterval(intervalId);
           player.value.pause();
           startMouseDown.value = true;
-          // 可以暂停播放等操作
         });
 
         // 监听 mouseup 事件，表示鼠标松开
