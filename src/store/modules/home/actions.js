@@ -64,5 +64,10 @@ export default {
   
   setSpotifyPlayer: (context, player) => {
     context.commit('SET_SPOTIFY_PLAYER', player);
-  }
+  },
+
+  isPlayerPlay: (context, isPlay) => {
+    context.commit('IS_PLAYER_PLAY', isPlay);
+  },
+
 };

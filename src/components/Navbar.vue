@@ -7,7 +7,6 @@
     >
       <!-- 水平菜单 -->
       <el-menu
-        mode="horizontal"
         background-color="#3a3f41"
         text-color="#fff"
         active-text-color="#ffd04b"
@@ -20,7 +19,7 @@
         </el-menu-item>
         <!-- 搜索框 -->
         <div class="searchContainer">
-          <form @submit="handleSearch">
+          <form @submit.prevent="handleSearch">
             <el-input
               size="default"
               placeholder="search music..."
@@ -29,6 +28,7 @@
               tabindex="-1"
               v-model="query"
               ref="searchRef"
+              clearable
             />
           </form>
         </div>
@@ -109,7 +109,7 @@ export default {
     };
 
     const handleSearch = async() => {
-      if (!searchQuery || searchQuery !== query) {  
+      if (query && (!searchQuery || searchQuery !== query)) {  
         store.dispatch('search', {
           page: 1,
           query: query.value,
@@ -119,12 +119,12 @@ export default {
 
     const handleClearSearch = () => { 
       store.dispatch('setActiveTrack', null); 
-    store.dispatch('clearSearch');
+      store.dispatch('clearSearch');
     }
 
     // 观察 `query` 变化，如果 `query` 清空，则清除搜索
-    watch(query, (newQuery) => {
-      if (!newQuery) {
+    watch([query, searchQuery], ([newQuery, newSearchQuery]) => {
+      if (!newQuery && newSearchQuery) {
         handleClearSearch();
       }
     });
@@ -133,16 +133,6 @@ export default {
     // 在页面挂载时执行一次获取 'house' 类型的曲目
     onMounted(() => {
       getGenreItems('house');
-      const elInputInnerElement = searchRef.value?.$el.querySelector('.el-input__inner');
-      if (elInputInnerElement) {
-        elInputInnerElement.addEventListener('keyup', (event) => {
-          event.preventDefault();
-          if (event.keyCode === 13) {  // 判断是否按下回车键
-            store.dispatch('setActiveTrack', null); 
-            handleSearch();
-          }
-        });
-      }
     });
 
     // 返回要在模板中使用的数据
@@ -252,5 +242,24 @@ export default {
     border-color: #43b883;
     color: #fff;
     background: #43b883;
+  }
+  @media (max-width: 768px) {
+    .el-button-group {
+      overflow-x: scroll;
+      overflow-y: hidden;
+      white-space: nowrap;
+      width: 100%;
+    }
+    .genresWrapper .el-button {
+      float: none;
+    }
+    .logo {
+      float: none;
+    }
+    .searchInput {
+      width: calc(100% - 20px);
+      margin: 0 10px 20px;
+      box-sizing: border-box;
+    }
   }
 </style>

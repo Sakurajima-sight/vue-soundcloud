@@ -21,4 +21,7 @@ export default {
 
   // 返回当前状态中存储的 activeTrack，用于显示当前正在播放的歌曲信息
   activeTrack: (state) => state.activeTrack,
+
+  isPlay: (state) => state.isPlay,
+
 };

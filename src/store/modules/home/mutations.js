@@ -36,4 +36,8 @@ export default {
   SET_SPOTIFY_PLAYER: (state, player) => {
     state.spotifyPlayer = player;
   },
+
+  IS_PLAYER_PLAY: (state, isPlay) => {
+    state.isPlay = isPlay;
+  },
 };

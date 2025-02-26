@@ -8,18 +8,22 @@
         @click="onClickTrack(trackData)"
       >
         <div class="playOverlay">
-          <img src="../assets/icons/play.svg" />
+          <img class="playing" src="../assets/playing.gif" v-if="isPlay" />
+          <img class="stop" src="../assets/icons/stop.svg" v-if="isPlay"  />
+          <img class="play" src="../assets/icons/play.svg" />
         </div>
       </div>
-      <div class="avatarWrapper">
-      <!-- 使用艺术家的头像作为图像 -->
-        <img class="avatar" :src="artistImage" :alt="trackData.artists[0].name" />
-      </div>
-      <div class="titleWrappper">
-        <!-- 使用歌曲标题，并链接到歌曲的Spotify页面 -->
-        <a class="title trackTitle" :href="trackData.external_urls.spotify">{{ trackData.name }}</a>
-        <!-- 使用艺术家的名字，并链接到艺术家的Spotify页面 -->
-        <a class="title username" :href="trackData.artists[0].external_urls.spotify">{{ trackData.artists[0].name }}</a>
+      <div class="bottomWrapper">
+        <div class="avatarWrapper">
+        <!-- 使用艺术家的头像作为图像 -->
+          <img class="avatar" :src="artistImage" :alt="trackData.artists[0].name" />
+        </div>
+        <div class="titleWrappper">
+          <!-- 使用歌曲标题，并链接到歌曲的Spotify页面 -->
+          <a class="title trackTitle" :href="trackData.external_urls.spotify">{{ trackData.name }}</a>
+          <!-- 使用艺术家的名字，并链接到艺术家的Spotify页面 -->
+          <a class="title username" :href="trackData.artists[0].external_urls.spotify">{{ trackData.artists[0].name }}</a>
+        </div>
       </div>
     </div>
   </el-col>
@@ -48,7 +52,7 @@ export default {
     // 从 Vuex 获取计算属性
     const store = useStore();
     const activeTrack = computed(() => store.getters.activeTrack);  // 当前活动的 Track
-    
+
     // 使用 onMounted 生命周期钩子
     onMounted(async () => {
       try {
@@ -68,9 +72,12 @@ export default {
       }
     });
 
+    const isPlay = computed(() => store.getters.isPlay);
+
     return {
       artistImage,
-      activeTrack
+      activeTrack,
+      isPlay
     };
   },
 };
@@ -83,18 +90,17 @@ export default {
   .wrapper {
     background: #fff; /* 设置背景颜色 */
     overflow: hidden;  /* 隐藏溢出的内容 */
-    height: 160px; /* 设置容器高度 */
+    height: 170px; /* 设置容器高度 */
     padding: 8px; /* 设置内边距 */
     box-sizing: border-box; /* 包括边框和内边距 */
     border: 1px solid #e3e3e3; /* 设置边框 */
   }
   .artwork {
     width: 100%; /* 背景图宽度占满容器 */
-    height: 90px; /* 背景图高度 */
+    height: 100px; /* 背景图高度 */
     background-repeat: no-repeat; /* 不重复背景图 */
     background-size: cover; /* 背景图覆盖容器 */
     background-position: center center; /* 背景图居中 */
-    float: left;
     cursor: pointer;
     position: relative;
     background-color: #e1e1e1;  /* 设置专辑封面的背景色 */
@@ -122,6 +128,10 @@ export default {
     transition: all linear .2s;
   }
 
+  .artwork .playOverlay > img.stop {
+    width: 35px;
+  }
+
   .artwork:hover .playOverlay, .artwork.active .playOverlay {
     opacity: 1;
     visibility: visible;
@@ -135,6 +145,22 @@ export default {
   .avatarWrapper {
     float: left; /* 向左浮动 */
   }
+
+  .artwork .playOverlay .stop,
+  .artwork .playOverlay .play,
+  .artwork .playOverlay:hover .playing,
+  .artwork.active .playOverlay:hover .play {
+    display: none;
+  }
+  .artwork.active .playOverlay:hover .stop, .artwork .playOverlay:hover .play {
+    display: block;
+  }
+  .bottomWrapper {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+  }
+
   .avatarWrapper .avatar {
     width: 40px; /* 设置头像宽度 */
     height: 40px; /* 设置头像高度 */

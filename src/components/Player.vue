@@ -91,11 +91,11 @@ export default {
           } else {
             if (!state.paused) {
               playerPlay.value = true;
+              await store.dispatch('isPlayerPlay', true);
             } else {
               playerPlay.value = false;
               return
             }
-            console.log("state.paused:", state.paused)
             // 获取当前播放位置和总时长
             position.value = state.position / 1000; // 以毫秒为单位
             duration.value = state.duration / 1000; // 以毫秒为单位
@@ -128,6 +128,7 @@ export default {
           // 暂停当前歌曲
           await player.value.pause();
           isPlay.value = false; // 设置暂停状态
+          await store.dispatch('isPlayerPlay', isPlay.value);
         } else {
           if (!tempActiveTrack.value && activeTrack.value.uri) {
             SpotifyUserClient.startPlayback('play', activeTrack.value.uri);
@@ -203,6 +204,7 @@ export default {
         seekRange.value = 0;
         isPlay.value = false;
         playerPlay.value = false;
+        await store.dispatch('isPlayerPlay', false);
         // 每次 activeTrack 变化时，清理之前的定时器，并重新开始
         if (!activeTrack.value || intervalId) {
           clearInterval(intervalId);
@@ -215,7 +217,7 @@ export default {
 
     const sliderRef = ref(null);
     const startMouseDown = ref(false);
-
+    
     watchEffect(() => {
       console.log("seekRange 变化为：", seekRange.value);
 
