@@ -22,7 +22,10 @@
           <!-- 使用歌曲标题，并链接到歌曲的Spotify页面 -->
           <a class="title trackTitle" :href="trackData.external_urls.spotify">{{ trackData.name }}</a>
           <!-- 使用艺术家的名字，并链接到艺术家的Spotify页面 -->
-          <a class="title username" :href="trackData.artists[0].external_urls.spotify">{{ trackData.artists[0].name }}</a>
+          <!-- <a class="title username" :href="trackData.artists[0].external_urls.spotify">{{ trackData.artists[0].name }}</a> -->
+          <router-link class="title username" :to="`/users/${trackData.artists[0].id}`">
+            {{trackData.artists[0].name}}
+          </router-link>
         </div>
       </div>
     </div>
@@ -62,7 +65,6 @@ export default {
         // 假设返回的 artistInfo 数据结构如下，找到第一个图片并设置为头像
         if (artistInfo.images && artistInfo.images.length > 0) {
           artistImage.value = artistInfo.images[0].url;  // 获取第一张图片作为头像
-          console.log('Artist image URL:', artistImage.value); // 输出头像URL
         } else {
           console.log('No artist images found'); // 如果没有图片则输出提示
         }

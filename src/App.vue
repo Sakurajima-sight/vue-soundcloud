@@ -9,7 +9,7 @@
     
     <!-- 已授权后显示应用内容 -->
     <div v-if="spotifyPlayer">
-      <navbar />
+      <navbar :showGenres="$route.path === '/'" />
       <el-main>
         <router-view />
       </el-main>

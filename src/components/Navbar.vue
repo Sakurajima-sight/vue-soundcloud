@@ -14,9 +14,9 @@
         :collapse="false"
       >
         <!-- 菜单项，显示 logo -->
-        <el-menu-item>
+        <router-link to="/">
           <img src="../assets/logo.png" class="logo" />
-        </el-menu-item>
+        </router-link>
         <!-- 搜索框 -->
         <div class="searchContainer">
           <form @submit.prevent="handleSearch">
@@ -34,7 +34,7 @@
         </div>
       </el-menu>
     </el-col>
-    <div class="genresMenu">
+    <div class="genresMenu" v-if="showGenres">
       <el-col
         :xs="24"
         :sm="22"
@@ -83,6 +83,12 @@ import { useStore } from 'vuex';  // 引入 Vuex 的 useStore
 import { Search, Loading } from '@element-plus/icons-vue';  // 引入搜索图标
 
 export default {
+  props: {
+    showGenres: {
+      type: Boolean,
+      required: true,  // 表示这个 prop 是必需的
+    },
+  },
   setup() {
     const store = useStore();  // 获取 Vuex store
 

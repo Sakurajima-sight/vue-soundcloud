@@ -17,7 +17,9 @@ import {
   ElFooter,
   ElButtonGroup,
   ElMenuItem,
-  ElSlider
+  ElSlider,
+  ElCard,
+  ElTooltip
 } from 'element-plus'
 import 'element-plus/dist/index.css'  // 引入 Element Plus 样式
 import store from './store'
@@ -43,7 +45,9 @@ app
   .use(ElLoading)
   .use(ElButtonGroup)
   .use(ElMenuItem)
-  .use(ElSlider);
+  .use(ElSlider)
+  .use(ElCard)
+  .use(ElTooltip);
   
 // 设置全局属性
 app.config.globalProperties.$loading = ElLoading.service;
