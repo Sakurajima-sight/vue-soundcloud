@@ -40,7 +40,7 @@ export default {
         // 判断艺术家名字是否完全与传入的 name 相同，或包含传入 name（如果是组合名等情况）
         return !artistName.toLowerCase().includes(name.toLowerCase());
       });
-
+      console.log(filteredArtists)
       const similarArtistsId = await Promise.all(
         filteredArtists.slice(0, 4).map(async (artistsName) => {
           const responseSpotify = await SpotifyUserClient.getInstance().get({
@@ -70,4 +70,58 @@ export default {
       commit('GET_USER_FOLLOWINGS_FAIL', error); // 请求失败，提交失败的 mutation
     }
   },
+
+  async getUserTracks({ commit }, name) {
+    commit('GET_USER_TRACKS');
+  
+    try {
+      const responseLastfm = await LastfmClient.getInstance().get({
+        query: {
+          method: 'artist.getTopTracks', 
+          artist: name,
+          limit: 10
+        },
+      });
+      const artistTopTracks = responseLastfm.toptracks.track.map(track => track.name);
+      console.log(artistTopTracks)
+      let maxListeners = 0; // 初始化最大收听人数为 0
+      const responseSpotify = await Promise.all(
+        artistTopTracks.map(async (artistTopTracksName) => {
+          const response = await SpotifyUserClient.getInstance().get({
+            url: 'search',
+            query: {
+              q: `${artistTopTracksName} ${name}`,       // 使用 Last.fm 中获取的歌曲名
+              type: 'track',      // 搜索类型为 track
+              limit: 1,           // 限制返回的结果数量为 1 条
+              offset: 0,          // 不使用分页
+            },
+          });  
+          // 查找 Last.fm 中该歌曲的 playcount 和 listeners
+          const trackDetails = responseLastfm.toptracks.track.find(
+            (track) => track.name === artistTopTracksName
+          );
+
+          // 获取当前歌曲的 listeners
+          const currentListeners = trackDetails.listeners;
+          // 更新最大收听人数（如果当前歌曲的 listeners 大于现有的 maxListeners）
+          maxListeners = Math.max(maxListeners, currentListeners);
+
+          return {
+            ...response.tracks.items[0],  // 获取 Spotify 返回的第一条结果
+            playcount: trackDetails.playcount,  // Last.fm 中的 playcount
+            listeners: trackDetails.listeners,  // Last.fm 中的 listeners
+          };
+        })
+      );
+      console.log('responseSpotify.tracks: ', responseSpotify[2])
+      console.log(maxListeners)
+
+      commit('GET_USER_TRACKS_SUCCESS', { 
+        response: responseSpotify, 
+        maxListeners: maxListeners 
+      });
+    } catch (error) {
+      commit('GET_USER_TRACKS_FAIL', error);
+    }
+  }
 };

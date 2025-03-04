@@ -1,16 +1,16 @@
 <template>
   <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
     <div class="wrapper">
-      <!-- 使用专辑的第一张图片作为背景图 -->
+      <!-- 使用专辑的第一张图片作为背景图 --> 
       <div
         :style="{ backgroundImage: `url(${trackData.album.images[0].url})` }"
-        :class="`artwork${(activeTrack && (activeTrack.id === trackData.id)) ? ' active' : ''}`"
+        :class="`artwork${(currentTrack && (currentTrack.id === trackData.id)) ? ' active' : ''}`"
         @click="onClickTrack(trackData)"
       >
         <div class="playOverlay">
           <img class="playing" src="../assets/playing.gif" v-if="isPlay" />
-          <img class="stop" src="../assets/icons/stop.svg" v-if="isPlay"  />
-          <img class="play" src="../assets/icons/play.svg" />
+          <font-awesome-icon :icon="['fas', 'stop-circle']" class="stop" />
+          <font-awesome-icon :icon="['fas', 'play-circle']" class="play" />
         </div>
       </div>
       <div class="bottomWrapper">
@@ -22,7 +22,6 @@
           <!-- 使用歌曲标题，并链接到歌曲的Spotify页面 -->
           <a class="title trackTitle" :href="trackData.external_urls.spotify">{{ trackData.name }}</a>
           <!-- 使用艺术家的名字，并链接到艺术家的Spotify页面 -->
-          <!-- <a class="title username" :href="trackData.artists[0].external_urls.spotify">{{ trackData.artists[0].name }}</a> -->
           <router-link class="title username" :to="`/users/${trackData.artists[0].id}`">
             {{trackData.artists[0].name}}
           </router-link>
@@ -42,11 +41,12 @@ export default {
   props: {
     trackData: {
       type: Object,
-      required: true
     },
     onClickTrack: {
       type: Function,
-      required: true
+    },
+    currentTrack: {
+      type: Object,
     }
   },
   setup(props) {
@@ -54,15 +54,14 @@ export default {
 
     // 从 Vuex 获取计算属性
     const store = useStore();
-    const activeTrack = computed(() => store.getters.activeTrack);  // 当前活动的 Track
-
+    
     // 使用 onMounted 生命周期钩子
     onMounted(async () => {
       try {
         const artistId = props.trackData.artists[0].id;  // 获取艺术家 ID
         const artistInfo = await SpotifyUserClient.getArtistInfo(artistId);  // 获取艺术家信息
         
-        // 假设返回的 artistInfo 数据结构如下，找到第一个图片并设置为头像
+        // 返回的 artistInfo 数据结构如下，找到第一个图片并设置为头像
         if (artistInfo.images && artistInfo.images.length > 0) {
           artistImage.value = artistInfo.images[0].url;  // 获取第一张图片作为头像
         } else {
@@ -73,12 +72,10 @@ export default {
         console.log('Error fetching artist info:', error);
       }
     });
-
     const isPlay = computed(() => store.getters.isPlay);
 
     return {
       artistImage,
-      activeTrack,
       isPlay
     };
   },
@@ -130,8 +127,9 @@ export default {
     transition: all linear .2s;
   }
 
-  .artwork .playOverlay > img.stop {
-    width: 35px;
+  .artwork .playOverlay > svg {
+    font-size: 50px;
+    color: #666666;
   }
 
   .artwork:hover .playOverlay, .artwork.active .playOverlay {

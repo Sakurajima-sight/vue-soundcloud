@@ -1,34 +1,43 @@
 <template>
   <div>  
-    <el-col
-      :xs="24"
-      :sm="22"
-      :md="20"
-      :lg="18"
-      :xl="16"
-      class="itemsWrapper"
-    >
-      <el-row :gutter="15" v-if="(searchResults.length < 1)">
-        <song-item 
-          v-for="track in tracks" 
-          :key="track.id" 
-          :trackData="track"
-          :onClickTrack="handleClickTrack"
-        />
-      </el-row>
-      <el-row :gutter="15" v-if="searchResults.length > 0">
-        <song-item
-          v-for="(track, i) in searchResults"
-          :key="i"
-          :trackData="track"
-          :onClickTrack="handleClickTrack"
-        />
-      </el-row>
-    </el-col>
+    <el-row :style="`padding-bottom: ${currentTrack ? '70px' : '0'}`">
+      <el-col
+        :xs="24"
+        :sm="22"
+        :md="20"
+        :lg="18"
+        :xl="16"
+        class="itemsWrapper"
+      >
+        <el-row :gutter="15" v-if="(searchResults.length < 1)">
+          <song-item 
+            v-for="track in tracks" 
+            :key="track.id" 
+            :trackData="track"
+            :onClickTrack="handleClickTrack"
+            :currentTrack="currentTrack"
+          />
+        </el-row>
+        <el-row :gutter="15" v-if="searchResults.length > 0">
+          <song-item
+            v-for="(track, i) in searchResults"
+            :key="i"
+            :trackData="track"
+            :onClickTrack="handleClickTrack"
+            :currentTrack="currentTrack"
+          />
+        </el-row>
+      </el-col>
 
-    <el-col :xl="24">
-      <h1 v-if="getTracksLoading || searchTracksLoading">Loading...</h1>
-    </el-col>
+      <el-col :xl="24">
+        <h1 v-if="getTracksLoading || searchTracksLoading">Loading...</h1>
+      </el-col>
+    </el-row>  
+    <Player
+      :tracks="(searchResults.length > 0) ? searchResults : tracks"
+      :currentTrack="currentTrack"
+      :setCurrentTrack="handleSetCurrentTrack"
+    />
   </div>
 </template>
 
@@ -37,11 +46,13 @@
 <script>
 import { useStore } from 'vuex';
 import { computed, onMounted, ref, onUnmounted } from 'vue';
-import SongItem from '../components/SongItem.vue';
+import SongItem from '../components/TrackItemGrid.vue';
+import Player from '../components/Player.vue';
 
 export default {
   components: {
     SongItem,
+    Player,
   },
   setup() {
     // 访问 Vuex store
@@ -49,17 +60,17 @@ export default {
 
     // 定义当前页数
     const page = ref(1);
+    const currentTrack = ref(null);
     
     const getTracksLoading = computed(() => store.getters.getTracksLoading);
     const tracks = computed(() => store.getters.tracks);
     const activeGenre = computed(() => store.getters.activeGenre);
     const lastPage = computed(() => store.getters.lastPage);
-    const activeTrack = computed(() => store.getters.activeTrack);
 
     const searchTracksLoading = computed(() => store.getters.searchTracksLoading);
     const searchResults = computed(() => store.getters.searchResults);
     const lastSearchPage = computed(() => store.getters.lastSearchPage);
-    const searchQuery = computed(() => store.getters.searchQuery);    
+    const searchQuery = computed(() => store.getters.searchQuery);     
 
     onMounted(() => {
       setupScrollListener();  // 设置滚动监听
@@ -70,12 +81,15 @@ export default {
     };
 
     const handleClickTrack = (trackData) => {
-      if (activeTrack.value && trackData.id === activeTrack.value.id) {
-        store.dispatch('setActiveTrack', null);
+      if (currentTrack.value && trackData.id === currentTrack.value.id) {
+        currentTrack.value = null;
       } else {
-        store.dispatch('setActiveTrack', trackData);
-        console.log("activeTrack: ", activeTrack.value.uri);
+        currentTrack.value = trackData;
       }
+    };
+
+    const handleSetCurrentTrack = (currentTrackData) => {
+        currentTrack.value = currentTrackData;
     };
 
     const setupScrollListener = () => {
@@ -116,6 +130,8 @@ export default {
       page,
       lastPage,
       handleClickTrack,
+      currentTrack,
+      handleSetCurrentTrack
     };
   },
 };

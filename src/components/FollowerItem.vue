@@ -7,11 +7,11 @@
           <router-link class="username" :to="`/users/${userData.id}`">
             {{ userData.name }}
           </router-link>
-          <p class="location"><i class="el-icon-location"></i>Popularity: {{userData.popularity || 'Privacy'}}</p>
+          <p class="popularity"><i class="el-icon-popularity"></i>Popularity: {{userData.popularity || 'Privacy'}}</p>
         </div>
       </div>
       <div class="followers">
-        <p>{{ userData.followers.total }}</p>
+        <p>{{ formatNumber(userData.followers.total) }}</p>
         <span>Followers</span>
       </div>
     </div>
@@ -27,6 +27,9 @@ export default {
     userData: {
       type: Object,
       required: true,
+    },
+    formatNumber: {
+      type: Function,
     },
   },
   setup() {
@@ -63,9 +66,9 @@ export default {
   }
   .userDetails .usernameWrapper .username {
     margin: 0;
-    font-size: 15px;
+    font-size: 13px;
   }
-  .userDetails .usernameWrapper .location {
+  .userDetails .usernameWrapper .popularity {
     margin: 0;
     font-size: 13px;
     margin-top: 7px;
@@ -76,14 +79,16 @@ export default {
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    margin-top: 3px;
   }
   .followers > * {
-    margin: 0;
-    font-size: 14px;
+    margin-left: 5px;
+    margin-top: 0;
+    font-size: 10px;
   }
   .followers > span {
     color: #a1a1a1;
-    font-size: 12px;
+    font-size: 10px;
   }
   .el-card {
     border: none;
