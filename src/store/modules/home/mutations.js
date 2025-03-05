@@ -24,11 +24,6 @@ export default {
     state.tracks = [];  // 清空曲目数据
   },
 
-  // 设置当前激活的曲目（正在播放的歌曲）
-  SET_ACTIVE_TRACK: (state, data) => {
-    state.activeTrack = data;
-  },
-
   SET_ACCESS_TOKEN: (state, token) => {
     state.accessToken = token;
   },

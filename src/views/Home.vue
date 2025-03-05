@@ -10,7 +10,7 @@
         class="itemsWrapper"
       >
         <el-row :gutter="15" v-if="(searchResults.length < 1)">
-          <song-item 
+          <track-item-grid
             v-for="track in tracks" 
             :key="track.id" 
             :trackData="track"
@@ -19,7 +19,7 @@
           />
         </el-row>
         <el-row :gutter="15" v-if="searchResults.length > 0">
-          <song-item
+          <track-item-grid
             v-for="(track, i) in searchResults"
             :key="i"
             :trackData="track"
@@ -46,12 +46,12 @@
 <script>
 import { useStore } from 'vuex';
 import { computed, onMounted, ref, onUnmounted } from 'vue';
-import SongItem from '../components/TrackItemGrid.vue';
+import TrackItemGrid from '../components/TrackItemGrid.vue';
 import Player from '../components/Player.vue';
 
 export default {
   components: {
-    SongItem,
+    TrackItemGrid,
     Player,
   },
   setup() {

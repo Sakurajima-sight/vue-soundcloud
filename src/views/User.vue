@@ -20,7 +20,7 @@
                   </p>
                   <p>
                     <font-awesome-icon :icon="['fas', 'users']" />
-                    {{ formatNumber(userMessage.followers.total) }} Followers
+                    {{ numberSeparator(userMessage.followers.total) }} Followers
                   </p>
                   <a target="_blank" :href="userProfileData.artist.url">
                     <font-awesome-icon :icon="['fas', 'globe']" />
@@ -43,7 +43,7 @@
                 :isPlay="isPlay"
                 :artistImage="artistImage"
                 :maxListeners="maxListeners"
-                :formatNumber="formatNumber"
+                :numberSeparator="numberSeparator"
               />
             </el-row>
           </el-col>
@@ -57,12 +57,12 @@
               <h4 class="custom-heading" v-if="!getUserFollowingsLoading">
                 Similar To
               </h4>
-              <user-item
+              <follower-item
                 v-if="!getUserFollowingsLoading"
                 v-for="(user, i) in userFollowingsData"
                 :key="i"
                 :userData="user"
-                :formatNumber="formatNumber"
+                :numberSeparator="numberSeparator"
               />
             </el-col>
           </div>
@@ -84,18 +84,19 @@
 import { useStore } from 'vuex';
 import { onMounted, watch, computed, ref } from 'vue';
 import { useRoute } from 'vue-router'; // 引入 Vue Router 中的 useRoute
-import UserItem from '../components/FollowerItem.vue';
+import FollowerItem from '../components/FollowerItem.vue';
 import Sticky from 'vue-sticky-directive';
 import SpotifyUserClient from '@/utils/SpotifyUserClient'; // 引入 Spotify API 客户端
 import TrackItemRow from '@/components/TrackItemRow.vue';
 import Player from '@/components/Player.vue';
+import { numberSeparator } from '@/utils/number'; // 使用 {} 进行命名导入
 
 export default {
   directives: {
     Sticky,  // 注册 Sticky 指令
   },
   components: {
-    UserItem,
+    FollowerItem,
     TrackItemRow,
     Player
   },
@@ -172,11 +173,6 @@ export default {
     const handleSetCurrentTrackIsPlay = (isPlayStatus) => {
       isPlay.value = isPlayStatus;
     };
-
-    // 格式化数字为千位分隔
-    const formatNumber = (number) => {
-      return new Intl.NumberFormat().format(number);
-    };
     
     return {
       getUserProfileLoading,
@@ -200,7 +196,7 @@ export default {
       trackItemSeek,
       currentTrack,
       isPlay,
-      formatNumber,
+      numberSeparator,
       artistImage,
       maxListeners
     };

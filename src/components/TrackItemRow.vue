@@ -36,7 +36,7 @@
       </div>
       <div class="userWrapper">
         <div class="otherDetails">
-          <span><font-awesome-icon :icon="['fas', 'play']" /> {{ formatNumber(trackData.playcount ?? 0) }}</span>
+          <span><font-awesome-icon :icon="['fas', 'play']" /> {{ numberSeparator(trackData.playcount ?? 0) }}</span>
           <span><font-awesome-icon :icon="['fas', 'clock']" /> {{ Math.floor((trackData.duration_ms ?? 0) / 60000) }}:{{ Math.floor(((trackData.duration_ms ?? 0) % 60000) / 1000).toString().padStart(2, '0') }}</span>
           <span class="albumName"><font-awesome-icon :icon="['fas', 'compact-disc']" /> {{ trackData.album.name ?? 'Unknown Album' }}</span>
         </div>
@@ -46,7 +46,7 @@
       <span class="chartlist-count-bar">
         <span class="chartlist-count-bar-link">
           <span :data-max-stat-value=maxListeners :data-stat-value=trackData.listeners class="chartlist-count-bar-slug" :style="{ width: ((trackData.listeners / maxListeners) * 100) + '%' }"></span>
-          <span class="chartlist-count-bar-value"> {{ formatNumber(trackData.listeners) }} 
+          <span class="chartlist-count-bar-value"> {{ numberSeparator(trackData.listeners) }} 
             <span class="stat-name" v-if="maxListeners == trackData.listeners">listeners</span>
           </span>
         </span>
@@ -73,7 +73,7 @@ export default {
     handlePlayPause: {
       type: Function,
     },    
-    formatNumber: {
+    numberSeparator: {
       type: Function,
     },
     artistImage: {

@@ -34,7 +34,7 @@
         </div>
       </el-menu>
     </el-col>
-    <div class="genresMenu" v-if="showGenres">
+    <div class="genresMenu" v-if="route.path === '/'">
       <el-col
         :xs="24"
         :sm="22"
@@ -81,6 +81,7 @@
 import { ref, computed, onMounted, watch } from 'vue';  // 引入 Vue 3 的响应式工具
 import { useStore } from 'vuex';  // 引入 Vuex 的 useStore
 import { Search, Loading } from '@element-plus/icons-vue';  // 引入搜索图标
+import { useRoute } from 'vue-router';
 
 export default {
   props: {
@@ -91,6 +92,7 @@ export default {
   },
   setup() {
     const store = useStore();  // 获取 Vuex store
+    const route = useRoute();
 
     // 响应式数据
     const query = ref('');  // 搜索文本
@@ -111,7 +113,6 @@ export default {
     const getGenreItems = (genre) => {
       store.dispatch('clearTracks');  // 清除之前的曲目数据
       store.dispatch('getTracks', { genre, page: 1 });  // 获取新的曲目数据，从第 1 页开始
-      store.dispatch('setActiveTrack', null);  // 调用 Vuex 中的 'setActiveTrack' action，设置活动曲目为 null
     };
 
     const handleSearch = async() => {
@@ -124,7 +125,6 @@ export default {
     };
 
     const handleClearSearch = () => { 
-      store.dispatch('setActiveTrack', null); 
       store.dispatch('clearSearch');
     }
 
@@ -154,7 +154,8 @@ export default {
       handleClearSearch,
       getGenreItems,
       searchRef,
-      handleSearch
+      handleSearch,
+      route
     };
   },
 };

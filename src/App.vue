@@ -13,9 +13,6 @@
       <el-main>
         <router-view />
       </el-main>
-      <el-footer>
-        <player />
-      </el-footer>
     </div>
   </div>
 </template>
@@ -25,12 +22,10 @@ import Navbar from './components/Navbar.vue';
 import SpotifyUserClient from '@/utils/SpotifyUserClient';
 import { onMounted, ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
-import Player from './components/Player.vue';
 
 export default {
   components: {
     Navbar,
-    Player
   },
   setup() {
     const store = useStore();

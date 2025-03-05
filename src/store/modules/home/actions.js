@@ -53,10 +53,6 @@ export default {
   clearTracks: (context) => {
     context.commit('CLEAR_TRACKS');  // 提交 mutation 清空 tracks 数据
   },
-  // 提交 mutation 更新当前活动的曲目
-  setActiveTrack: (context, data) => {
-    context.commit('SET_ACTIVE_TRACK', data);  // data 是传入的新的活动曲目数据
-  },  
   
   setAccessToken: (context, token) => {
     context.commit('SET_ACCESS_TOKEN', token);  // data 是传入的新的活动曲目数据

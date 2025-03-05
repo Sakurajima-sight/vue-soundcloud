@@ -19,7 +19,6 @@ import {
   ElMenuItem,
   ElSlider,
   ElCard,
-  ElTooltip
 } from 'element-plus';
 import 'element-plus/dist/index.css'; // 引入 Element Plus 样式
 import store from './store';
@@ -56,8 +55,7 @@ app
   .use(ElButtonGroup)
   .use(ElMenuItem)
   .use(ElSlider)
-  .use(ElCard)
-  .use(ElTooltip);
+  .use(ElCard);
 
 // 设置全局属性
 app.config.globalProperties.$loading = ElLoading.service;

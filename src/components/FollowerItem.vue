@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="followers">
-        <p>{{ formatNumber(userData.followers.total) }}</p>
+        <p>{{ numberSeparator(userData.followers.total) }}</p>
         <span>Followers</span>
       </div>
     </div>
@@ -28,7 +28,7 @@ export default {
       type: Object,
       required: true,
     },
-    formatNumber: {
+    numberSeparator: {
       type: Function,
     },
   },
