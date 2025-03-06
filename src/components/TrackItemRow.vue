@@ -1,7 +1,7 @@
 <template>
   <el-col :xl="24" class="itemWrapper">
     <div
-      :style="{ backgroundImage: `url(${trackData.album.images[2].url})` }"
+      :style="{ backgroundImage: `url(${trackData.album_image})` }"
       class="artwork"
     >
       <div
@@ -56,8 +56,12 @@
 </template>
 
 <script>
+import { numberSeparator } from '@/utils/number';
 export default {
   props: {
+    main: {
+      type: Boolean,
+    },
     activeTrack: {
       type: Object,
     },
@@ -73,9 +77,6 @@ export default {
     handlePlayPause: {
       type: Function,
     },    
-    numberSeparator: {
-      type: Function,
-    },
     artistImage: {
       type: String,
     },    
@@ -85,7 +86,9 @@ export default {
   },
 
   setup() {
-
+    return {
+      numberSeparator
+    }
   },
 };
 </script>
@@ -212,7 +215,7 @@ export default {
     text-overflow: ellipsis; /* 超出部分显示省略号 */
   }
   .waveformWrapper {
-    width: 280px;
+    width: 350px;
     height: 50%;
     position: absolute;
     right: 15px;
@@ -222,7 +225,7 @@ export default {
   }
   .chartlist-bar {
     height: 100%;
-    width: 280px;
+    width: 350px;
   }
   .chartlist-count-bar {
     display: block;

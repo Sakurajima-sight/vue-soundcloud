@@ -89,8 +89,7 @@ import Sticky from 'vue-sticky-directive';
 import SpotifyUserClient from '@/utils/SpotifyUserClient'; // 引入 Spotify API 客户端
 import TrackItemRow from '@/components/TrackItemRow.vue';
 import Player from '@/components/Player.vue';
-import { numberSeparator } from '@/utils/number'; // 使用 {} 进行命名导入
-
+import { numberSeparator } from '@/utils/number';
 export default {
   directives: {
     Sticky,  // 注册 Sticky 指令
@@ -128,7 +127,7 @@ export default {
       store.dispatch('getUserProfile', userMessage.value.name);
       store.dispatch('getUserFollowings', userMessage.value.name);
       store.dispatch('getUserTracks', userMessage.value.name);
-      artistImage.value = userMessage.value.images[2].url
+      artistImage.value = userMessage.value.images[0].url
     };
 
     // 在组件挂载时请求数据
@@ -212,9 +211,12 @@ export default {
   .followingWrapper {
     background: #fff;
     overflow-y: scroll;
-    height: 105vh;
+    height: 53vh;
     position: absolute;
     right: 0;
+  }
+  .mainUserCardWrapper {
+    height: 53vh;
   }
   .mainUserCardWrapper .avatar {
     border-radius: 50px;
@@ -231,11 +233,17 @@ export default {
     margin-right: 5px;
   }
   .userMusicsWrapper {
+    width: 1050px;
     margin: 20px 0 0 !important;
   }
   .description {
+    padding: 5px;
+    font-family: "Roboto Condensed", sans-serif;
+    font-style: italic;
     font-size: 14px;
+    line-height: 1.2; /* 增加行间距，提高可读性 */
   }
+
   .stickyWrapper.top-sticky > div {
     height: calc(100vh - 20px);
   }
@@ -243,7 +251,7 @@ export default {
     height: calc(100vh - 90px);
   }
   .custom-heading {
-    font-size: 16px; /* 设置字体大小 */
+    font-size: 20px; /* 设置字体大小 */
     margin-top: 20px; /* 可以调整外边距来让盒子更紧凑 */
     margin-bottom: -3px; /* 可以调整外边距来让盒子更紧凑 */
   }

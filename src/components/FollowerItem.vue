@@ -66,11 +66,11 @@ export default {
   }
   .userDetails .usernameWrapper .username {
     margin: 0;
-    font-size: 13px;
+    font-size: 12px;
   }
   .userDetails .usernameWrapper .popularity {
     margin: 0;
-    font-size: 13px;
+    font-size: 12px;
     margin-top: 7px;
     color: #a1a1a1;
   }
@@ -88,7 +88,7 @@ export default {
   }
   .followers > span {
     color: #a1a1a1;
-    font-size: 10px;
+    font-size: 12px;
   }
   .el-card {
     border: none;
@@ -98,7 +98,7 @@ export default {
     border: none;
   }
   .userCard .el-card__body {
-    padding: 10px;
+    padding: 20px;
   }
 </style>
   

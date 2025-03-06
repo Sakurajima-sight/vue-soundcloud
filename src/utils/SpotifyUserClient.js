@@ -119,20 +119,20 @@ class SpotifyUserClient {
     }
   }
 
-    // 跳转到指定位置的方法
-    static async seekToPosition(nextPosition) {
-      try {
-        // 将秒数转换为毫秒
-        const response = await SpotifyUserClient.getInstance()['put']({
-          url: 'me/player/seek',
-          query: { position_ms: nextPosition * 1000 }, // position_ms 以毫秒为单位
-        });
-        return response;  // 成功时返回响应数据
-      } catch (error) {
-        console.error('跳转位置失败:', error);
-        throw new Error('无法跳转到指定位置');
-      }
+  // 跳转到指定位置的方法
+  static async seekToPosition(nextPosition) {
+    try {
+      // 将秒数转换为毫秒
+      const response = await SpotifyUserClient.getInstance()['put']({
+        url: 'me/player/seek',
+        query: { position_ms: nextPosition * 1000 }, // position_ms 以毫秒为单位
+      });
+      return response;  // 成功时返回响应数据
+    } catch (error) {
+      console.error('跳转位置失败:', error);
+      throw new Error('无法跳转到指定位置');
     }
+  }
 
   // 获取 SpotifyUserClient 实例
   static getInstance() {
