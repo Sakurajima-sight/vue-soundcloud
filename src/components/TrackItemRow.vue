@@ -5,33 +5,25 @@
       class="artwork"
     >
       <div
-        :class="`playOverlay${
-          (activeTrack && (activeTrack.id === trackData.id)) && !isPlay ? ' active' :
-            ((activeTrack && trackData && (activeTrack.id === trackData.id))
-             && isPlay) ? ' palying' : ''
-        }`"
-        @click="
-          (!activeTrack || (activeTrack && activeTrack.id !== trackData.id))
-            ? onClickTrack(trackData) : (!activeTrack ||
-             (activeTrack && trackData && (activeTrack.id === trackData.id))) && handlePlayPause()
-        "
+        :class="`playOverlay${(!isPlay && activeTrack && activeTrack.id === trackData.id) ? ' active' : ''}`" 
+        @click="onClickTrack(trackData)"
       >
         <font-awesome-icon :icon="['fas', 'play']" />
       </div>
       <div
-        :class="`pauseOverlay${
-          (activeTrack && trackData && (activeTrack.id === trackData.id)) && isPlay ? ' active' : ''
-        }`"
-        @click="onClickTrack(trackData)"
+        class="pauseOverlay active"
+        v-if="isPlay && activeTrack.id === trackData.id"
       >
         <font-awesome-icon :icon="['fas', 'stop']" />
       </div>
     </div>
     <div class="detailsWrapper">
-      <a class="title" href="#">{{trackData.name}}</a>
       <div class="avatarWrapper">
-        <router-link class="username" :to="`/users/${trackData.artists[0].id}`">
-          {{trackData.artists.username}}
+        <router-link class="title" :to="`/tracks/${trackData.id}`">
+          {{trackData.name}}
+        </router-link>
+        <router-link :to="`/users/${trackData.artists[0].id}`">
+          <img class="avatar" :src="trackData.artist_image" alt="Artist Image" />
         </router-link>
       </div>
       <div class="userWrapper">
@@ -45,9 +37,9 @@
     <div class="waveformWrapper">
       <span class="chartlist-count-bar">
         <span class="chartlist-count-bar-link">
-          <span :data-max-stat-value=maxListeners :data-stat-value=trackData.listeners class="chartlist-count-bar-slug" :style="{ width: ((trackData.listeners / maxListeners) * 100) + '%' }"></span>
+          <span :data-max-stat-value=trackData.max_listeners :data-stat-value=trackData.listeners class="chartlist-count-bar-slug" :style="{ width: ((trackData.listeners / trackData.max_listeners) * 100) + '%' }"></span>
           <span class="chartlist-count-bar-value"> {{ numberSeparator(trackData.listeners) }} 
-            <span class="stat-name" v-if="maxListeners == trackData.listeners">listeners</span>
+            <span class="stat-name" v-if="itemKey === 0"> Listeners </span>
           </span>
         </span>
       </span>
@@ -59,6 +51,9 @@
 import { numberSeparator } from '@/utils/number';
 export default {
   props: {
+    itemKey: {
+      type: Number,
+    }, 
     main: {
       type: Boolean,
     },
@@ -77,12 +72,6 @@ export default {
     handlePlayPause: {
       type: Function,
     },    
-    artistImage: {
-      type: String,
-    },    
-    maxListeners: {
-      type: Number,
-    }
   },
 
   setup() {
@@ -166,12 +155,15 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 45px;
+    margin-top: -5px;
   }
   .avatar {
     width: 25px;
     height: 25px;
     border-radius: 20px;
-    margin: 0 10px 0 20px;
+    margin: 0 10px 0 10px;
+    margin-top: -5px;
   }
   .title {
     text-overflow: ellipsis;

@@ -40,7 +40,7 @@ export default {
         // 判断艺术家名字是否完全与传入的 name 相同，或包含传入 name（如果是组合名等情况）
         return !artistName.toLowerCase().includes(name.toLowerCase());
       });
-      console.log(filteredArtists)
+
       const similarArtistsId = await Promise.all(
         filteredArtists.slice(0, 4).map(async (artistsName) => {
           const responseSpotify = await SpotifyUserClient.getInstance().get({
@@ -71,7 +71,7 @@ export default {
     }
   },
 
-  async getUserTracks({ commit }, name) {
+  async getUserTracks({ commit }, { name, artistImageUrl }) {
     commit('GET_USER_TRACKS');
   
     try {
@@ -83,8 +83,8 @@ export default {
         },
       });
       const artistTopTracks = responseLastfm.toptracks.track.map(track => track.name);
-      console.log(artistTopTracks)
-      let maxListeners = 0; // 初始化最大收听人数为 0
+      const listeners = responseLastfm.toptracks.track.map(track => track.listeners);
+      let maxListeners = Math.max(...listeners);
       const responseSpotify = await Promise.all(
         artistTopTracks.map(async (artistTopTracksName) => {
           const response = await SpotifyUserClient.getInstance().get({
@@ -101,25 +101,18 @@ export default {
             (track) => track.name === artistTopTracksName
           );
 
-          // 获取当前歌曲的 listeners
-          const currentListeners = trackDetails.listeners;
-          // 更新最大收听人数（如果当前歌曲的 listeners 大于现有的 maxListeners）
-          maxListeners = Math.max(maxListeners, currentListeners);
-
           return {
             ...response.tracks.items[0],  // 获取 Spotify 返回的第一条结果
             playcount: trackDetails.playcount,  // Last.fm 中的 playcount
             listeners: trackDetails.listeners,  // Last.fm 中的 listeners
+            max_listeners: maxListeners,
+            album_image: response.tracks.items[0]?.album?.images?.[0]?.url || '',
+            artist_image: artistImageUrl || ''
           };
         })
       );
-      console.log('responseSpotify.tracks: ', responseSpotify[2])
-      console.log(maxListeners)
-
-      commit('GET_USER_TRACKS_SUCCESS', { 
-        response: responseSpotify, 
-        maxListeners: maxListeners 
-      });
+      
+      commit('GET_USER_TRACKS_SUCCESS', responseSpotify);
     } catch (error) {
       commit('GET_USER_TRACKS_FAIL', error);
     }

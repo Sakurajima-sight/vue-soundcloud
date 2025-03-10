@@ -53,9 +53,6 @@ export default {
     setCurrentTrackIsPlay: {
       type: Function,
     },
-    outsideSeek: {
-      type: Number,
-    },
     outsidePlayPause: {
       type: Boolean,
     },
@@ -94,7 +91,9 @@ export default {
           tempActiveTrack.value = activeTrack.value
         }
         else if (tempActiveTrack.value.uri == activeTrack.value.uri) {
-          await player.value.resume();
+          for (let i = 0; i < 5; i++) {
+            await player.value.resume();
+          }
           showSlider.value = true;
         }
         isPlay.value = true; // 设置播放状态
@@ -149,18 +148,6 @@ export default {
     watch(() => props.outsidePlayPause, (nextPlayPause, prevPlayPause) => {
       if (nextPlayPause !== prevPlayPause && player) {
         handlePlayPause();
-      }
-    });
-    
-    watch(() => props.outsideSeek, (nextSeek, prevSeek) => {
-      if (
-        (nextSeek || nextSeek === 0) &&
-        (nextSeek !== prevSeek) &&
-        player.value
-      ) {
-        pastTime.value = nextSeek;
-        seekRange.value = nextSeek / (duration.value / 100);
-        handleSeekChange(seekRange.value);
       }
     });
 
@@ -257,10 +244,13 @@ export default {
         window.addEventListener('mouseup', async() => {
           if (startMouseDown.value) {
             handleSeekChange(seekRange.value);
-            await player.value.resume();
+            for (let i = 0; i < 5; i++) {
+              await player.value.resume();
+            }
             startMouseDown.value = false;
             setTimeout(() => {
-              intervalId = setInterval(updatePlayerState, 100);}, 500);
+              intervalId = setInterval(updatePlayerState, 200);}, 600);
+            isPlay.value = true;    
           }
         });
       }

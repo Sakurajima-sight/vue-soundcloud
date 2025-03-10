@@ -19,20 +19,21 @@ import {
   ElMenuItem,
   ElSlider,
   ElCard,
+  ElTag
 } from 'element-plus';
 import 'element-plus/dist/index.css'; // 引入 Element Plus 样式
 import store from './store';
 import router from './router';
 // 引入 FontAwesome
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faPlay, faFire, faHashtag, faClock, faUsers, faCoffee, faStopCircle, faPlayCircle, faMapMarkerAlt, faGlobe, faCompactDisc, faStop } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faFire, faHashtag, faClock, faUsers, faCoffee, faStopCircle, faPlayCircle, faMapMarkerAlt, faGlobe, faCompactDisc, faStop, faHeadphones, faMusic } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // 创建 Vue 应用实例
 const app = createApp(App);
 
 // 将图标添加到库中
-library.add(faPlay, faCompactDisc, faFire, faHashtag, faClock, faUsers, faCoffee, faStopCircle, faPlayCircle, faMapMarkerAlt, faGlobe, faStop);
+library.add(faHeadphones, faMusic, faPlay, faCompactDisc, faFire, faHashtag, faClock, faUsers, faCoffee, faStopCircle, faPlayCircle, faMapMarkerAlt, faGlobe, faStop);
 
 // 全局注册 FontAwesomeIcon 组件
 app.component('font-awesome-icon', FontAwesomeIcon);
@@ -55,7 +56,8 @@ app
   .use(ElButtonGroup)
   .use(ElMenuItem)
   .use(ElSlider)
-  .use(ElCard);
+  .use(ElCard)
+  .use(ElTag);
 
 // 设置全局属性
 app.config.globalProperties.$loading = ElLoading.service;

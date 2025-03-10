@@ -41,8 +41,7 @@ export default {
   // 用户歌曲列表请求成功
   GET_USER_TRACKS_SUCCESS: (state, data) => {
     state.getUserTracksLoading = false; // 设置为加载完成，表示请求已成功完成
-    state.userTracksData = data.response; // 存储用户的歌曲列表，返回的数据为用户喜爱的歌曲或上传的歌曲
-    state.maxListeners = data.maxListeners; // 存储用户的歌曲列表，返回的数据为用户喜爱的歌曲或上传的歌曲
+    state.userTracksData = data;
   },
 
   // 用户歌曲列表请求失败

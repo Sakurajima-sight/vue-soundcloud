@@ -20,7 +20,9 @@
         </div>
         <div class="titleWrappper">
           <!-- 使用歌曲标题，并链接到歌曲的Spotify页面 -->
-          <a class="title trackTitle" :href="trackData.external_urls.spotify">{{ trackData.name }}</a>
+          <router-link class="title trackTitle" :to="`/tracks/${trackData.id}`">
+            {{trackData.name}}
+          </router-link>
           <!-- 使用艺术家的名字，并链接到艺术家的Spotify页面 -->
           <router-link class="title username" :to="`/users/${trackData.artists[0].id}`">
             {{trackData.artists[0].name}}

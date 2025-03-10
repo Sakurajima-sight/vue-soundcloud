@@ -16,7 +16,6 @@ const defaultState = {
   userTracksData: null,             // 存储用户的歌曲列表，初始为空
   getUserTracksFail: null,          // 存储歌曲列表请求失败信息，初始为空
 
-  maxListeners: 0
 };
 
 export default {

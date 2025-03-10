@@ -31,20 +31,23 @@
               </div>
             </el-card>
             <el-row :gutter="15" class="userMusicsWrapper">
-              <h4 v-if="getUserTracksLoading">Loading...</h4>
-              <track-item-row
-                v-if="!getUserTracksLoading && (userTracksData && userTracksData.length > 0)"
-                v-for="(track, i) in userTracksData"
-                :key="i"
-                :trackData="track"
-                :onClickTrack="handleClickTrack"
-                :activeTrack="currentTrack"
-                :handlePlayPause="handleSongItemPlayPause"
-                :isPlay="isPlay"
-                :artistImage="artistImage"
-                :maxListeners="maxListeners"
-                :numberSeparator="numberSeparator"
-              />
+              <el-card class="similar-tracks-card">
+                <h4 v-if="getUserTracksLoading">Loading...</h4>
+                <template #header>
+                  <h3 class="similar-tracks-title" v-if="userTracksData?.length !== 0">Top Tracks</h3>
+                  <h3 class="similar-tracks-title" v-if="userTracksData?.length === 0">No Top Tracks</h3>
+                </template>
+                <track-item-row
+                  v-if="!getUserTracksLoading && (userTracksData && userTracksData.length > 0)"
+                  v-for="(track, i) in userTracksData"
+                  :itemKey="i"
+                  :trackData="track"
+                  :onClickTrack="handleClickTrack"
+                  :activeTrack="currentTrack"
+                  :handlePlayPause="handleSongItemPlayPause"
+                  :isPlay="isPlay"
+                />
+              </el-card>
             </el-row>
           </el-col>
           <div
@@ -126,8 +129,8 @@ export default {
       userMessage.value = await SpotifyUserClient.getArtistInfo(userID);
       store.dispatch('getUserProfile', userMessage.value.name);
       store.dispatch('getUserFollowings', userMessage.value.name);
-      store.dispatch('getUserTracks', userMessage.value.name);
       artistImage.value = userMessage.value.images[0].url
+      store.dispatch('getUserTracks', {name: userMessage.value.name, artistImageUrl: artistImage.value});
     };
 
     // 在组件挂载时请求数据
@@ -220,6 +223,8 @@ export default {
   }
   .mainUserCardWrapper .avatar {
     border-radius: 50px;
+    width: 160px;
+    height: 160px;
   }
   .mainUserCardWrapper .otherDetailsWrapper {
     text-align: center;
@@ -254,6 +259,16 @@ export default {
     font-size: 20px; /* 设置字体大小 */
     margin-top: 20px; /* 可以调整外边距来让盒子更紧凑 */
     margin-bottom: -3px; /* 可以调整外边距来让盒子更紧凑 */
+  }
+  .similar-tracks-card {
+    width: 1050px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+
+  .similar-tracks-title {
+    font-size: 18px;
+    font-weight: bold;
   }
 </style>
   

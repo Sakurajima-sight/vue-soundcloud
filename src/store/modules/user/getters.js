@@ -19,6 +19,4 @@ export default {
   userTracksData: state => state.userTracksData,
   // 用户歌曲列表错误信息
   getUserTracksFail: state => state.getUserTracksFail,
-
-  maxListeners: state => state.maxListeners,
 };
