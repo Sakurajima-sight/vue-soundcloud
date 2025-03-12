@@ -14,11 +14,5 @@ export default {
   getTracksFail: (state) => state.getTracksFail,
 
   // 获取当前页面的页码，用于分页控制，返回的是当前加载的页面编号
-  lastPage: (state) => state.lastPage,
-
-  // 返回当前状态中存储的 activeTrack，用于显示当前正在播放的歌曲信息
-  activeTrack: (state) => state.activeTrack,
-
-  isPlay: (state) => state.isPlay,
-
+  lastPage: (state) => state.lastPage
 };

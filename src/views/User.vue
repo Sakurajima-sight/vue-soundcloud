@@ -1,6 +1,6 @@
 <template>
   <div sticky-container>
-    <el-row :style="`padding-bottom: ${currentTrack ? '70px' : '0'}`">
+    <el-row>
       <el-col :xs="24" :sm="22" :md="20" :lg="18" :xl="16" class="container">
         <el-row :gutter="15">
           <el-col :span="18">
@@ -42,10 +42,7 @@
                   v-for="(track, i) in userTracksData"
                   :itemKey="i"
                   :trackData="track"
-                  :onClickTrack="handleClickTrack"
-                  :activeTrack="currentTrack"
-                  :handlePlayPause="handleSongItemPlayPause"
-                  :isPlay="isPlay"
+                  :onPlayTrack="handlePlayTrack"
                 />
               </el-card>
             </el-row>
@@ -53,7 +50,7 @@
           <div
             v-sticky="true"
             sticky-side="both"
-            :class="`stickyWrapper${currentTrack ? ' playerOpened' : ''}`"
+            :class="`stickyWrapper${playerCurrentTrack ? ' playerOpened' : ''}`"
           >
             <el-col :span="6" class="followingWrapper">
               <h4 v-if="getUserFollowingsLoading">Loading...</h4>
@@ -72,20 +69,12 @@
         </el-row>
       </el-col>
     </el-row>
-    <Player
-      :tracks="userTracksData"
-      :currentTrack="currentTrack"
-      :setCurrentTrack="handleSetCurrentTrack"
-      :setCurrentTrackIsPlay="handleSetCurrentTrackIsPlay"
-      :outsideSeek="trackItemSeek"
-      :outsidePlayPause="currentTrackPlayPause"
-    />
   </div>
 </template>
 
 <script>
 import { useStore } from 'vuex';
-import { onMounted, watch, computed, ref } from 'vue';
+import { onMounted, watch, computed, ref, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router'; // 引入 Vue Router 中的 useRoute
 import FollowerItem from '../components/FollowerItem.vue';
 import Sticky from 'vue-sticky-directive';
@@ -93,6 +82,7 @@ import SpotifyUserClient from '@/utils/SpotifyUserClient'; // 引入 Spotify API
 import TrackItemRow from '@/components/TrackItemRow.vue';
 import Player from '@/components/Player.vue';
 import { numberSeparator } from '@/utils/number';
+import _ from 'lodash'; // 导入 lodash 库，作为工具函数集合，通常使用 "_" 作为别名
 export default {
   directives: {
     Sticky,  // 注册 Sticky 指令
@@ -114,14 +104,9 @@ export default {
     const getUserTracksLoading = computed(() => store.getters.getUserTracksLoading);
     const userTracksData = computed(() => store.getters.userTracksData);
     const getUserTracksFail = computed(() => store.getters.getUserTracksFail);
-    const maxListeners = computed(() => store.getters.maxListeners);
+    const playerCurrentTrack = computed(() => store.getters.playerCurrentTrack);
 
     const userMessage = ref(null)
-    const currentTrack = ref(null)
-    const currentTrackSeek = ref(null)
-    const trackItemSeek = ref(0)
-    const currentTrackPlayPause = ref(false)
-    const isPlay = ref(false)
     const artistImage = ref(null)
 
     // 获取用户资料和关注列表
@@ -150,32 +135,35 @@ export default {
       }
     );
 
+    // 监视 userTracksData 的变化
+    watch(userTracksData, (nextUserTracksData, prevUserTracksData) => {
+      if (nextUserTracksData.length > 0 && !_.isEqual(nextUserTracksData, prevUserTracksData)) {
+        store.dispatch('setPlayerTracks', nextUserTracksData);
+      }
+    });
+
     const cleanedSummary = computed(() => {
       const summary = userProfileData.value.artist.bio.summary;
       const filteredSummary = summary.replace(/<a href="https:\/\/www\..*/g, "");
       return filteredSummary
     })
 
-    const handleClickTrack = (trackData) => {
-      if (currentTrack.value && trackData.id === currentTrack.value.id) {
-        currentTrack.value = null;
-      } else {
-        currentTrack.value = trackData;
-      }
-    }
-
-    const handleSetCurrentTrack = (newTrack) => {
-      currentTrack.value = newTrack;
+    // 处理播放音轨的方法
+    const handlePlayTrack = (trackData) => {
+      setTimeout(() => {
+        if (playerCurrentTrack.value && playerCurrentTrack.value.id === trackData.id) {
+          store.dispatch('setPlayerCurrentTrack', null);
+        } else {
+          store.dispatch('setPlayerCurrentTrack', trackData);
+        }
+      }, 100);
     };
 
-    const handleSongItemPlayPause = () => {
-      currentTrackPlayPause.value = !currentTrackPlayPause.value;
-    };
+    onUnmounted(async() => {
+      store.dispatch('setPlayerTracks', []);
+      store.dispatch('setPlayerCurrentTrack', null);
+    });
 
-    const handleSetCurrentTrackIsPlay = (isPlayStatus) => {
-      isPlay.value = isPlayStatus;
-    };
-    
     return {
       getUserProfileLoading,
       userProfileData,
@@ -185,22 +173,12 @@ export default {
       getUserFollowingsFail,
       userMessage,
       cleanedSummary,
-      currentTrack,
-      currentTrackSeek,
       getUserTracksLoading,
       userTracksData,
       getUserTracksFail,
-      handleClickTrack,
-      handleSetCurrentTrack,
-      handleSongItemPlayPause,
-      handleSetCurrentTrackIsPlay,
-      currentTrackPlayPause,
-      trackItemSeek,
-      currentTrack,
-      isPlay,
       numberSeparator,
-      artistImage,
-      maxListeners
+      handlePlayTrack,
+      playerCurrentTrack
     };
   },
 };
@@ -216,7 +194,9 @@ export default {
     overflow-y: scroll;
     height: 53vh;
     position: absolute;
-    right: 0;
+    right: 15px;
+    width: 260px;
+    border-radius: 5px;
   }
   .mainUserCardWrapper {
     height: 53vh;

@@ -9,11 +9,11 @@ const defaultState = {
   getUserProfileFail: null,         // 存储失败信息
 
   getUserFollowingsLoading: false,  // 关注列表加载状态
-  userFollowingsData: null,         // 存储关注列表
+  userFollowingsData: [],         // 存储关注列表
   getUserFollowingsFail: null,         // 存储失败信息
 
   getUserTracksLoading: false,      // 歌曲列表加载状态，表示歌曲列表是否正在加载
-  userTracksData: null,             // 存储用户的歌曲列表，初始为空
+  userTracksData: [],             // 存储用户的歌曲列表，初始为空
   getUserTracksFail: null,          // 存储歌曲列表请求失败信息，初始为空
 
 };

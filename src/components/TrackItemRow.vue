@@ -1,25 +1,26 @@
 <template>
-  <el-col :xl="24" class="itemWrapper">
+  <el-col :xl="24"  class="itemWrapper">
     <div
       :style="{ backgroundImage: `url(${trackData.album_image})` }"
       class="artwork"
     >
       <div
-        :class="`playOverlay${(!isPlay && activeTrack && activeTrack.id === trackData.id) ? ' active' : ''}`" 
-        @click="onClickTrack(trackData)"
+        :class="`playOverlay${(!isPlay && playerCurrentTrack && playerCurrentTrack.id === trackData.id) ? ' active' : ''}`" 
+        @click="onPlayTrack(trackData)"
       >
         <font-awesome-icon :icon="['fas', 'play']" />
       </div>
       <div
         class="pauseOverlay active"
-        v-if="isPlay && activeTrack.id === trackData.id"
+        v-if="isPlay && playerCurrentTrack && playerCurrentTrack.id === trackData.id"
+        @click="onPlayTrack(trackData)"
       >
         <font-awesome-icon :icon="['fas', 'stop']" />
       </div>
     </div>
     <div class="detailsWrapper">
       <div class="avatarWrapper">
-        <router-link class="title" :to="`/tracks/${trackData.id}`">
+        <router-link class="title" :to="`/tracks/${trackData.id}`" @click="handleClickTrack()">
           {{trackData.name}}
         </router-link>
         <router-link :to="`/users/${trackData.artists[0].id}`">
@@ -48,35 +49,37 @@
 </template>
 
 <script>
+import { useStore } from 'vuex';
+import { computed } from 'vue';
 import { numberSeparator } from '@/utils/number';
 export default {
   props: {
     itemKey: {
       type: Number,
     }, 
-    main: {
-      type: Boolean,
-    },
-    activeTrack: {
-      type: Object,
-    },
     trackData: {
       type: Object,
     },
-    onClickTrack: {
+    onPlayTrack: {
       type: Function,
     },
-    isPlay: {
-      type: Boolean,
-    },
-    handlePlayPause: {
-      type: Function,
-    },    
   },
 
   setup() {
+    const store = useStore();  // 使用 Vuex 的 useStore hook
+    const isPlay = computed(() => store.getters.isPlay);
+    const playerCurrentTrack = computed(() => store.getters.playerCurrentTrack);
+
+    const handleClickTrack = () => { 
+      store.dispatch('setPlayerTracks', []);
+      store.dispatch('setPlayerCurrentTrack', null);
+    }
+
     return {
-      numberSeparator
+      playerCurrentTrack,
+      isPlay,
+      numberSeparator,
+      handleClickTrack
     }
   },
 };

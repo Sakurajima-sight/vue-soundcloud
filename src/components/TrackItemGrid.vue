@@ -4,7 +4,7 @@
       <!-- 使用专辑的第一张图片作为背景图 --> 
       <div
         :style="{ backgroundImage: `url(${trackData.album.images[0].url})` }"
-        :class="`artwork${(currentTrack && (currentTrack.id === trackData.id)) ? ' active' : ''}`"
+        :class="`artwork${(playerCurrentTrack && (playerCurrentTrack.id === trackData.id)) ? ' active' : ''}`"
         @click="onClickTrack(trackData)"
       >
         <div class="playOverlay">
@@ -46,9 +46,6 @@ export default {
     },
     onClickTrack: {
       type: Function,
-    },
-    currentTrack: {
-      type: Object,
     }
   },
   setup(props) {
@@ -56,6 +53,8 @@ export default {
 
     // 从 Vuex 获取计算属性
     const store = useStore();
+    const isPlay = computed(() => store.getters.isPlay);
+    const playerCurrentTrack = computed(() => store.getters.playerCurrentTrack);
     
     // 使用 onMounted 生命周期钩子
     onMounted(async () => {
@@ -74,11 +73,11 @@ export default {
         console.log('Error fetching artist info:', error);
       }
     });
-    const isPlay = computed(() => store.getters.isPlay);
 
     return {
       artistImage,
-      isPlay
+      isPlay,
+      playerCurrentTrack
     };
   },
 };

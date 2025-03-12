@@ -6,6 +6,4 @@ export default {
   getSimilarTrackLoading: state => state.getSimilarTrackLoading, // 获取曲目信息加载状态
   similarTrackData: state => state.similarTrackData, // 获取曲目信息
   getSimilarTrackFail: state => state.getSimilarTrackFail, // 获取曲目失败信息
-
-  
 };

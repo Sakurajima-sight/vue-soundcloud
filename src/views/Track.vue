@@ -1,6 +1,6 @@
 <template>
   <div v-if="trackData" sticky-container>
-    <el-row :style="`padding-bottom: ${currentTrack ? '70px' : '0'}`">
+    <el-row>
       <el-col :xs="24" :sm="22" :md="20" :lg="18" :xl="16" class="container">
         <el-row :gutter="15">
           <el-col :span="18">
@@ -9,10 +9,7 @@
               <comment-item
                 v-if="!getTrackLoading"
                 :trackData="trackData"
-                :onClickTrack="handleClickTrack"
-                :activeTrack="currentTrack"
-                :handlePlayPause="handleSongItemPlayPause"
-                :isPlay="isPlay"
+                :onClickTrack="handlePlayTrack"
               />
             </div>
             <el-row :gutter="15" class="userMusicsWrapper">
@@ -23,14 +20,11 @@
                   <h3 class="similar-tracks-title" v-if="similarTrackData?.length === 0">No Similar Tracks</h3>
                 </template>
                 <track-item-row
-                  v-if="!getSimilarTrackLoading && !getTrackLoading && similarTrackData?.length"
+                  v-if="!getSimilarTrackLoading && (similarTrackData && similarTrackData?.length > 0)"
                   v-for="(track, i) in similarTrackData"
                   :itemKey="i"
                   :trackData="track"
-                  :onClickTrack="handleClickTrack"
-                  :activeTrack="currentTrack"
-                  :handlePlayPause="handleSongItemPlayPause"
-                  :isPlay="isPlay"
+                  :onPlayTrack="handlePlayTrack"
                 />
               </el-card>
             </el-row>
@@ -38,13 +32,6 @@
         </el-row>
       </el-col>
     </el-row>
-    <Player
-      :tracks="similarTrackData"
-      :currentTrack="currentTrack"
-      :setCurrentTrack="handleSetCurrentTrack"
-      :setCurrentTrackIsPlay="handleSetCurrentTrackIsPlay"
-      :outsidePlayPause="currentTrackPlayPause"
-    />
   </div>
 </template>
 
@@ -57,6 +44,7 @@ import CommentItem from '@/components/CommentItem.vue';
 import TrackItemRow from '@/components/TrackItemRow.vue';
 import Player from '@/components/Player.vue';
 import SpotifyUserClient from '@/utils/SpotifyUserClient';
+import _ from 'lodash';
 
 
 export default {
@@ -77,7 +65,6 @@ export default {
     const currentTrackPlayPause = ref(false);
     const isPlay = ref(false);
     const artistMessage = ref(null)
-    const artistImage = ref(null)
 
     // **Vuex 状态**
     const getTrackLoading = computed(() => store.getters.getTrackLoading);
@@ -86,28 +73,17 @@ export default {
     const getSimilarTrackLoading = computed(() => store.getters.getSimilarTrackLoading);
     const similarTrackData = computed(() => store.getters.similarTrackData);
     const getSimilarTrackFail = computed(() => store.getters.getSimilarTrackFail);
+    const playerCurrentTrack = computed(() => store.getters.playerCurrentTrack);
 
     // **方法**
-    const handleClickTrack = (trackData) => {
-      if (currentTrack.value && trackData.id === currentTrack.value.id) {
-        currentTrack.value = null;
+    const handlePlayTrack = (trackData) => { 
+      console.log(trackData)
+      if (playerCurrentTrack.value && playerCurrentTrack.value.id === trackData.id) {
+        store.dispatch('setPlayerCurrentTrack', null);
       } else {
-        currentTrack.value = trackData;
+        store.dispatch('setPlayerCurrentTrack', trackData);
       }
     }
-
-    const handleSetCurrentTrack = (newTrack) => {
-      currentTrack.value = newTrack;
-    };
-
-    const handleSongItemPlayPause = () => {
-      currentTrackPlayPause.value = !currentTrackPlayPause.value;
-    };
-
-    const handleSetCurrentTrackIsPlay = (isPlayStatus) => {
-      isPlay.value = isPlayStatus;
-    };
-
 
     const fetchTrackData = async (trackID) => {
       const trackResponse = await SpotifyUserClient.getInstance().get({
@@ -115,11 +91,16 @@ export default {
       });
 
       artistMessage.value = await SpotifyUserClient.getArtistInfo(trackResponse.artists[0].id);
-      artistImage.value = artistMessage.value.images[0].url;
 
       // 发起 Vuex 的动作请求
-      store.dispatch('getTrackInfo', { trackName: trackResponse.name, artistName: trackResponse.artists[0].name });
-      store.dispatch('getSimilarTrackInfo', { trackName: trackResponse.name, artistName: trackResponse.artists[0].name });
+      store.dispatch(
+        'getTrackInfo', 
+        { trackName: trackResponse.name, artistName: trackResponse.artists[0].name, artistImageUrl: artistMessage.value.images[0].url }
+      );
+      store.dispatch(
+        'getSimilarTrackInfo', 
+        { trackName: trackResponse.name, artistName: trackResponse.artists[0].name }
+      );
     };
 
     // **初始化**
@@ -130,22 +111,29 @@ export default {
     // **监听路由变化**
     watch(() => route.params.id, (newId, oldId) => {
       if (newId !== oldId) {
-        store.dispatch('clearTrackInfo');
-        store.dispatch('clearSimilarTrackInfo');
+        store.dispatch('setPlayerTracks', []);
+        store.dispatch('setPlayerCurrentTrack', null);
         fetchTrackData(newId);
       }
     });
 
     // **监听 trackData 变化**
-    watch(trackData, (newTrackData, oldTrackData) => {
-      if (newTrackData && newTrackData !== oldTrackData) {
-        store.dispatch('getUserTracks', newTrackData.id);
+    watch(trackData, (nextTrackData, prevTrackData) => {
+      if (nextTrackData && !_.isEqual(nextTrackData, prevTrackData)) {
+        store.dispatch('getUserTracks', nextTrackData.id);
+      }
+    });
+
+    // 监视 similarTrackData 的变化
+    watch(similarTrackData, (nextSimilarTrackData, prevSimilarTrackData) => {
+      if (nextSimilarTrackData && nextSimilarTrackData.length > 0 && !_.isEqual(nextSimilarTrackData, prevSimilarTrackData)) {
+        store.dispatch('setPlayerTracks', nextSimilarTrackData);
       }
     });
 
     onUnmounted(async() => {
-      store.dispatch('clearTrackInfo');
-      store.dispatch('clearSimilarTrackInfo');
+      store.dispatch('setPlayerTracks', []);
+      store.dispatch('setPlayerCurrentTrack', null);
     });
 
     return {
@@ -158,10 +146,7 @@ export default {
       getSimilarTrackLoading,
       similarTrackData,
       getSimilarTrackFail,
-      handleClickTrack,
-      handleSetCurrentTrack,
-      handleSongItemPlayPause,
-      handleSetCurrentTrackIsPlay,
+      handlePlayTrack,
     }
   }
 }
@@ -172,7 +157,6 @@ export default {
   .container {
     margin: 0 auto;
     float: none;
-    height: calc(100vh - 100px);
   }
   .mainTrackWrapper {
     margin: 0 0 20px;

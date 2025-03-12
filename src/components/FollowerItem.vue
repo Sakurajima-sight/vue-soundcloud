@@ -19,9 +19,6 @@
 </template>
 
 <script>
-import { computed } from 'vue';
-import { useStore } from 'vuex';
-
 export default {
   props: {
     userData: {
@@ -33,13 +30,7 @@ export default {
     },
   },
   setup() {
-    const store = useStore();
-    
-    // 如果需要获取 Vuex 中的状态
-    const activeTrack = computed(() => store.getters.activeTrack);
-
     return {
-      activeTrack,
     };
   },
 };

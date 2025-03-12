@@ -2,7 +2,7 @@ import LastfmClient from '@/utils/xhrWrapperLastfm';
 import SpotifyUserClient from '@/utils/SpotifyUserClient';
 
 export default {
-  async getTrackInfo({ commit }, { trackName, artistName }) {
+  async getTrackInfo({ commit }, { trackName, artistName, artistImageUrl }) {
     commit('GET_TRACK_INFO'); // 触发加载状态
 
     try {
@@ -24,7 +24,6 @@ export default {
         },
       });
 
-      console.log(responseSpotify.tracks.items[0])
       // 提取 Last.fm 数据
       const lastfmData = getInfoLastfm?.track || {};
       const listeners = lastfmData.listeners || 0;
@@ -39,8 +38,8 @@ export default {
         listeners: listeners,        
         summary: summary,
         tag: tag,
-        album_image: responseSpotify.tracks.items[0]?.album?.images?.[0]?.url || ''
-
+        album_image: responseSpotify.tracks.items[0]?.album?.images?.[0]?.url || '',
+        artist_image: artistImageUrl || ''
       };
 
       
@@ -116,16 +115,6 @@ export default {
       // 请求失败，提交错误信息
       commit('GET_SIMILAR_TRACK_INFO_FAIL', error);
     }
-  },
-
-  // 清空 track 信息
-  clearTrackInfo({ commit }) {
-    commit('CLEAR_TRACK_INFO');
-  },
-
-  // 清空 similar track 信息
-  clearSimilarTrackInfo({ commit }) {
-    commit('CLEAR_SIMILAR_TRACK_INFO');
   }
-
+  
 };

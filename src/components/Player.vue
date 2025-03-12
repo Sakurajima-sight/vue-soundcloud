@@ -1,6 +1,17 @@
 <template>
   <!-- 判断是否有激活的音轨，如果有则显示播放器 -->
-  <div class="playerWrapper" v-if="!!activeTrack">
+  <div class="playerWrapper" v-if="!!playerCurrentTrack">
+    <div class="trackDetails">
+      <img :src="playerCurrentTrack.album.images[0].url" alt="">
+      <div class="titleWrapper">
+        <router-link class="title" :to="`/tracks/${playerCurrentTrack.id}`">
+          {{ playerCurrentTrack.name }}
+        </router-link>
+        <router-link class="user" :to="`/users/${playerCurrentTrack.artists[0].id}`">
+          {{ playerCurrentTrack.artists[0].name }}
+        </router-link>
+      </div>
+    </div> 
     <div class="mainButtons">
       <button @click="handleChangeTrack('previous')">
         <img :src="previousIcon" />
@@ -16,8 +27,8 @@
         <img :src="nextIcon" />
       </button>
     </div>
-    <span class="pastTime" >{{secondsToTime(Math.round(pastTime))}}</span>
-    <span class="remainingTime">{{`- ${secondsToTime(Math.round(duration - pastTime))}`}}</span>
+    <span class="pastTime" >{{secondsToTime(Math.round(playerCurrentTime))}}</span>
+    <span class="remainingTime">{{`- ${secondsToTime(Math.round(playerDuration - playerCurrentTime))}`}}</span>
     <el-slider
       v-if="showSlider"
       class="seekBar"
@@ -38,36 +49,23 @@ import nextIcon from '../assets/icons/next.svg';
 import previousIcon from '../assets/icons/previous.svg';
 import SpotifyUserClient from '@/utils/SpotifyUserClient';
 import secondsToTime from '@/utils/secondsToTime';
+import _ from 'lodash';
+
 
 export default {
-  props: {
-    tracks: {
-      type: Array,
-    },
-    currentTrack: {
-      type: Object,
-    },
-    setCurrentTrack: {
-      type: Function,
-    },
-    setCurrentTrackIsPlay: {
-      type: Function,
-    },
-    outsidePlayPause: {
-      type: Boolean,
-    },
-  },
   setup(props) {   
     const store = useStore();
     const player = computed(() => store.getters.spotifyPlayer);
-    const pastTime = ref(0);
-    const duration = ref(0);
     const seekRange = ref(0);
-    const activeTrack = ref(null);
     const isPlay = ref(null);
     const startMouseDown = ref(false);
     const showSlider = ref(false);
 
+    // 使用 computed 映射 getters
+    const playerCurrentTime = computed(() => store.getters.playerCurrentTime);
+    const playerDuration = computed(() => store.getters.playerDuration);
+    const playerTracks = computed(() => store.getters.playerTracks);
+    const playerCurrentTrack = computed(() => store.getters.playerCurrentTrack);
 
     const handlePlayPause = async () => {
       if (player && isPlay.value) {
@@ -76,21 +74,21 @@ export default {
         showSlider.value = true;
         store.dispatch('isPlayerPlay', isPlay.value);
       } else {        
-        if (pastTime.value === duration.value) {
+        if (playerCurrentTime.value === playerDuration.value) {
           await SpotifyUserClient.seekToPosition(0);
           seekRange.value = 0;
-          pastTime.value = 0;
+          store.dispatch('setPlayerCurrentTime', 0);
         }
         showSlider.value = false;
-        if (!tempActiveTrack.value && activeTrack.value.uri) {
-          SpotifyUserClient.startPlayback('play', activeTrack.value.uri);
-          tempActiveTrack.value = activeTrack.value
+        if (!tempTrack.value && playerCurrentTrack.value.uri) {
+          SpotifyUserClient.startPlayback('play', playerCurrentTrack.value.uri);
+          tempTrack.value = playerCurrentTrack.value
         }          
-        else if (tempActiveTrack.value.uri != activeTrack.value.uri) {
-          SpotifyUserClient.startPlayback('play', activeTrack.value.uri);
-          tempActiveTrack.value = activeTrack.value
+        else if (tempTrack.value.uri != playerCurrentTrack.value.uri) {
+          SpotifyUserClient.startPlayback('play', playerCurrentTrack.value.uri);
+          tempTrack.value = playerCurrentTrack.value
         }
-        else if (tempActiveTrack.value.uri == activeTrack.value.uri) {
+        else if (tempTrack.value.uri == playerCurrentTrack.value.uri) {
           for (let i = 0; i < 5; i++) {
             await player.value.resume();
           }
@@ -102,25 +100,25 @@ export default {
     };
 
     const handleSeekChange = async (data) => {
-      const nextSeek = Math.round(data * (duration.value / 100));
+      const nextSeek = Math.round(data * (playerDuration.value / 100));
       await SpotifyUserClient.seekToPosition(nextSeek);
-      pastTime.value = nextSeek;
+      store.dispatch('setPlayerCurrentTime', nextSeek);
       seekRange.value = data;
     };
 
     const handleChangeTrackState = ref(false)
     const handleChangeTrack = async (direction) => {
-      const currentIndex = props.tracks.findIndex(track => track.uri === props.currentTrack.uri);
+      const currentIndex = playerTracks.value.findIndex(track => track.id === playerCurrentTrack.value.id);
       let nextIndex = 0;
       if (direction === 'next') {
         nextIndex = currentIndex + 1;
-        if (nextIndex >= 0 && nextIndex < props.tracks.length) {
-          await props.setCurrentTrack(props.tracks[nextIndex]);
+        if (nextIndex >= 0 && nextIndex < playerTracks.value.length) {
+          await store.dispatch('setPlayerCurrentTrack', playerTracks.value[nextIndex]);
         }
       } else if (direction === 'previous') {
         nextIndex = currentIndex - 1;
         if (nextIndex >= 0) {
-          await props.setCurrentTrack(props.tracks[nextIndex]);
+          await store.dispatch('setPlayerCurrentTrack', playerTracks.value[nextIndex]);
         }
       }
       handleChangeTrackState.value = true;
@@ -137,69 +135,65 @@ export default {
           showSlider.value = false;
           return
         } 
-        pastTime.value = state.position / 1000 || 0; // 以毫秒为单位
-        duration.value = state.duration / 1000 || 0; // 以毫秒为单位
-        if (Math.round(pastTime.value) === Math.round(duration.value)) {
+        store.dispatch('setPlayerCurrentTime', state.position / 1000 || 0); // 以毫秒为单位
+        store.dispatch('setPlayerDuration', state.duration / 1000 || 0); // 以毫秒为单位
+        if (Math.round(playerCurrentTime.value) === Math.round(playerDuration.value)) {
           isTrackFinished.value = true;
         }
       }
     };
 
-    watch(() => props.outsidePlayPause, (nextPlayPause, prevPlayPause) => {
-      if (nextPlayPause !== prevPlayPause && player) {
+    watch(() => isPlay, (nextIsPlay, prevIsPlay) => {
+      if (nextIsPlay !== prevIsPlay && player) {
         handlePlayPause();
       }
     });
 
-    watch(() => props.currentTrack, (nextCurrentTrack, prevCurrentTrack) => {
-      if (
-        (prevCurrentTrack && nextCurrentTrack && prevCurrentTrack.id !== nextCurrentTrack.id) ||
-        (nextCurrentTrack && nextCurrentTrack.id && !prevCurrentTrack) ||
-        (prevCurrentTrack && !nextCurrentTrack)
-      ) {
+    watch(() => playerCurrentTrack, (nextCurrentTrack, prevCurrentTrack) => {
+      if (nextCurrentTrack && !_.isEqual(nextCurrentTrack, prevCurrentTrack)) {
         if (!nextCurrentTrack && player) {
           player.value.pause();
+          store.dispatch('setPlayerCurrentTime', 0);
+          store.dispatch('setPlayerDuration', 0);
           seekRange.value = 0;
-          pastTime.value = 0;
-          duration.value = 0;
         }
-        activeTrack.value = nextCurrentTrack;
+        playerCurrentTrack.value = nextCurrentTrack;
       }
     });
 
-    watch(pastTime, (nextPastTime, prevPastTime) => {
+    watch(playerCurrentTime, (nextPlayerCurrentTime, prevPlayerCurrentTime) => {
       if (
-        nextPastTime &&
-        nextPastTime > 0 &&
-        nextPastTime !== prevPastTime
+        nextPlayerCurrentTime &&
+        prevPlayerCurrentTime > 0 &&
+        nextPlayerCurrentTime !== prevPlayerCurrentTime
       ) {
-        seekRange.value = parseFloat((pastTime.value / duration.value * 100).toFixed(1));
+        seekRange.value = parseFloat((playerCurrentTime.value / playerDuration.value * 100).toFixed(1));
       }
     });
 
 
     let intervalId;
-    const tempActiveTrack = ref(null);
-    watch(activeTrack, async(nextActiveTrack, prevActiveTrack) => {
+    const tempTrack = ref(null);
+    watch(playerCurrentTrack, async(nextCurrentTrack, prevCurrentTrack) => {
       clearInterval(intervalId);
       await player.value.pause();
       seekRange.value = 0;
-      pastTime.value = 0;
-      duration.value = 0;
+      store.dispatch('setPlayerCurrentTime', 0);
+      store.dispatch('setPlayerDuration', 0);
       showSlider.value = false;
       isPlay.value = false;
       await store.dispatch('isPlayerPlay', showSlider.value);
-      tempActiveTrack.value = prevActiveTrack
-      // 每次 activeTrack 变化时，清理之前的定时器，并重新开始
-      if (!activeTrack.value || intervalId) {
+      tempTrack.value = prevCurrentTrack
+      // 每次 playerCurrentTrack 变化时，清理之前的定时器，并重新开始
+      if (!playerCurrentTrack.value || intervalId) {
         clearInterval(intervalId);
       }
       if (handleChangeTrackState.value) {
-        await SpotifyUserClient.startPlayback('play', nextActiveTrack.uri); // 播放选定的曲目
+        await SpotifyUserClient.startPlayback('play', nextCurrentTrack.uri); // 播放选定的曲目
         isPlay.value = true;
         handleChangeTrackState.value = false;
       }
-      if (nextActiveTrack) {
+      if (nextCurrentTrack) {
         intervalId = setInterval(updatePlayerState, 100); // 设置定时器
       }
     });
@@ -207,10 +201,10 @@ export default {
 
     watchEffect(() => {
       if (isTrackFinished.value) {
-        if ((props.tracks.indexOf(activeTrack) + 1) < props.tracks.length) {
+        if ((playerTracks.value.indexOf(playerCurrentTrack.value) + 1) < playerTracks.value.length) {
           handleChangeTrack('next');
         } else {
-          pastTime.value = 0;
+          store.dispatch('setPlayerCurrentTime', 0);
           seekRange.value = 0;
           player.pause();
           if (props.setCurrentTrackIsPlay) {
@@ -260,8 +254,8 @@ export default {
       if (player.value) {
         player.value.pause();
         seekRange.value = 0;
-        pastTime.value = 0;
-        duration.value = 0;
+        store.dispatch('setPlayerCurrentTime', 0);
+        store.dispatch('setPlayerDuration', 0);
       }
       clearInterval(intervalId);
     });
@@ -276,10 +270,10 @@ export default {
       nextIcon,
       previousIcon,
       secondsToTime,
-      activeTrack,
       player,
-      pastTime,
-      duration,
+      playerCurrentTrack,
+      playerCurrentTime,
+      playerDuration,
       seekRange,
       isPlay,
       sliderRef,
@@ -298,35 +292,89 @@ export default {
     bottom: 0;
     left: 0;
     width: 100%;
-    padding-top: 12px;
     background: #fff;
     display: flex;
-    height: 65px;
+    height: 85px;
+  }
+  .trackDetails {
+    position: absolute;
+    left: 15px;
+    top: 0;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .trackDetails img {
+    width: 60px;
+    background: #eee;
+    object-fit: cover;
+  }
+  .trackDetails .titleWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: -10px;
+    padding-top: 18px;
+    margin-left: 10px;
+    font-size: 12px;
+    width: 200px;
+    height: 60px;
+    overflow: hidden;
+    text-align: left;
+  }
+  .trackDetails .titleWrapper * {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100%;
+  }
+  .trackDetails .titleWrapper .title {
+    margin-top: -3px;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  .trackDetails .titleWrapper .user {
+    font-weight: normal;
   }
   .mainButtons {
-    margin: 0 auto;
+    margin: 5px auto 0;
     display: table;
     align-self: center;
   }
-  /* 按钮样式 */
   .mainButtons button {
     float: left;
     border-radius: 20px;
-    width: 40px;
-    height: 40px;
-    margin: 10px;
-    padding: 11px;
+    width: 35px;
+    height: 35px;
+    margin: 0 10px;
+    padding: 5px;
     transition: all ease .1s;
     box-sizing: border-box;
   }
-  .mainButtons button:hover {
-    transform: scale(1.1); /* 鼠标悬停时按钮放大 */
+  .mainButtons button:disabled,
+  .mainButtons button[disabled] {
+    cursor: default;
+    pointer-events: none;
+  }
+  .mainButtons button:disabled img,
+  .mainButtons button[disabled] img {
+    opacity: .2 !important;
+  }
+  .mainButtons button:hover img {
+    opacity: .7;
   }
   .mainButtons button.playButton {
-    border: 1px solid #a5a7b0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mainButtons button.playButton img {
+    width: 20px;
   }
   .mainButtons button img {
-    width: 16px;
+    width: 14px;
+    opacity: .4;
   }
   /* 播放进度条样式 */
   .seekBar {
@@ -346,6 +394,7 @@ export default {
   /* 显示时间的样式 */
   .pastTime {
     position: absolute;
+    margin-left: 10px;
     left: 5%;
     bottom: 15%;
   }

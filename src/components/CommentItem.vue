@@ -3,8 +3,12 @@
     <div class="upper-section">
       <div class="left-side">
         <router-link :to="`/users/${trackData.artists[0].id}`" class="router-link">
-          <!-- 歌手名字 -->
-          <div class="artist-name">{{ trackData.artists[0].name }}</div>
+          <div class="artist-container">
+            <!-- 歌手名字 -->
+            <div class="artist-name">{{ trackData.artists[0].name }}</div>
+            <!-- 歌手头像 -->
+            <img class="avatar" :src="trackData.artist_image" alt="Artist Image" />
+          </div>
         </router-link>
         <!-- 歌曲名称 -->
         <div class="track-name">{{ trackData.name }}</div>
@@ -91,8 +95,6 @@
 
 
 <script>
-import { computed } from 'vue';
-import { useStore } from 'vuex';
 import { numberSeparator } from '@/utils/number';
 
 export default {
@@ -100,22 +102,11 @@ export default {
     trackData: {
       type: Object,
     },
-    activeTrack: {
-      type: Object,
-    },
     onClickTrack: {
       type: Function,
     },
-    isPlay: {
-      type: Boolean,
-    },
-    handlePlayPause: {
-      type: Function,
-    },  
   },
   setup(props) {
-    const store = useStore();
-    const activeTrack = computed(() => store.getters.activeTrack);
     
     // Step 1: 提取所有的URL
     const urlRegex = /<a href="(.*?)">.*?<\/a>/g;
@@ -129,9 +120,7 @@ export default {
 
     // Step 2: 清洗文本，去掉<a>标签
     const cleanedText = props.trackData.summary.replace(urlRegex, '');
-    
     return {
-      activeTrack,
       numberSeparator,
       urls,
       cleanedText
@@ -164,6 +153,18 @@ export default {
   width: 70%;
 }
 
+.router-link {
+  color: white;
+  text-decoration: none; /* 去掉下划线（可选） */
+
+}
+
+.artist-container {
+  display: flex; /* 使用 Flexbox 让元素水平排列 */
+  align-items: center; /* 垂直居中 */
+  gap: 10px; /* 图片和文字之间的间距 */
+}
+
 .artist-name {
   font-size: 18px;
   font-weight: bold;
@@ -173,6 +174,12 @@ export default {
   font-style: normal;
   display: block;  /* 设置为块级元素 */
   text-align: left;  /* 确保文本左对齐 */
+}
+
+.avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 20px;
 }
 
 .track-name {
@@ -382,9 +389,5 @@ export default {
   margin-left: 10px; /* 右移10px */
 }
 
-.router-link {
-  color: white;
-  text-decoration: none; /* 去掉下划线（可选） */
-}
 
 </style>

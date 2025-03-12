@@ -28,19 +28,5 @@ export default {
   GET_SIMILAR_TRACK_INFO_FAIL: (state, data) => {
     state.getSimilarTrackLoading = false;
     state.getSimilarTrackFail = data;
-  },
-
-  // 清空 track 信息
-  CLEAR_TRACK_INFO(state) {
-    state.getTrackInfoLoading = false; // 清除加载状态
-    state.trackData = null; // 清空曲目数据
-    state.getTrackInfoFail = null; // 清空失败信息
-  },
-
-  // 清空 similar track 信息
-  CLEAR_SIMILAR_TRACK_INFO(state) {
-    state.getSimilarTrackLoading = false; // 清除加载状态
-    state.similarTrackData = null; // 清空 similar track 数据
-    state.getSimilarTrackFail = null; // 清空失败信息
-  },
+  }
 };

@@ -12,7 +12,6 @@ const defaultState = {
   getTracksFail: false, // 标识数据获取是否失败
   activeGenre: null, // 存储当前选择的音乐类型
   lastPage: null, // 存储当前页数，用于分页控制，确保每次加载正确的下一页数据
-  isPlay: false,
 };
 
 // Vuex 模块配置

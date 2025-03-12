@@ -9,13 +9,12 @@
         :xl="16"
         class="itemsWrapper"
       >
-        <el-row :gutter="15" v-if="(searchResults.length < 1)">
+        <el-row :gutter="15">
           <track-item-grid
-            v-for="track in tracks" 
+            v-for="track in (searchResults.length > 0 ? searchResults : tracks)"
             :key="track.id" 
             :trackData="track"
             :onClickTrack="handleClickTrack"
-            :currentTrack="currentTrack"
           />
         </el-row>
         <el-row :gutter="15" v-if="searchResults.length > 0">
@@ -24,7 +23,6 @@
             :key="i"
             :trackData="track"
             :onClickTrack="handleClickTrack"
-            :currentTrack="currentTrack"
           />
         </el-row>
       </el-col>
@@ -33,11 +31,6 @@
         <h1 v-if="getTracksLoading || searchTracksLoading">Loading...</h1>
       </el-col>
     </el-row>  
-    <Player
-      :tracks="(searchResults.length > 0) ? searchResults : tracks"
-      :currentTrack="currentTrack"
-      :setCurrentTrack="handleSetCurrentTrack"
-    />
   </div>
 </template>
 
@@ -45,9 +38,10 @@
 
 <script>
 import { useStore } from 'vuex';
-import { computed, onMounted, ref, onUnmounted } from 'vue';
+import { computed, onMounted, ref, onUnmounted, watch } from 'vue';
 import TrackItemGrid from '../components/TrackItemGrid.vue';
 import Player from '../components/Player.vue';
+import _ from 'lodash';
 
 export default {
   components: {
@@ -71,6 +65,7 @@ export default {
     const searchResults = computed(() => store.getters.searchResults);
     const lastSearchPage = computed(() => store.getters.lastSearchPage);
     const searchQuery = computed(() => store.getters.searchQuery);     
+    const playerCurrentTrack = computed(() => store.getters.playerCurrentTrack);     
 
     onMounted(() => {
       setupScrollListener();  // 设置滚动监听
@@ -81,15 +76,11 @@ export default {
     };
 
     const handleClickTrack = (trackData) => {
-      if (currentTrack.value && trackData.id === currentTrack.value.id) {
-        currentTrack.value = null;
+      if (playerCurrentTrack.value && playerCurrentTrack.value.id === trackData.id) {
+        store.dispatch('setPlayerCurrentTrack', null);
       } else {
-        currentTrack.value = trackData;
+        store.dispatch('setPlayerCurrentTrack', trackData);
       }
-    };
-
-    const handleSetCurrentTrack = (currentTrackData) => {
-        currentTrack.value = currentTrackData;
     };
 
     const setupScrollListener = () => {
@@ -118,6 +109,26 @@ export default {
       });
     };
 
+    watch(tracks, (nextTracks, prevTracks) => {
+      if (nextTracks && nextTracks.length > 0 && !_.isEqual(nextTracks, prevTracks)) {
+        store.dispatch('setPlayerTracks', nextTracks);   
+      }
+    });
+
+    watch(searchResults, (nextSearchResults, prevSearchResults) => {
+      if (nextSearchResults.length > 0 && !_.isEqual(nextSearchResults, prevSearchResults)) {
+        store.dispatch('setPlayerTracks', nextSearchResults);
+      } else if (prevSearchResults.length > 0 && nextSearchResults.length === 0) {
+        store.dispatch('setPlayerTracks', tracks.value);
+      }
+    });
+
+    onUnmounted(() => {
+      store.dispatch('pause');
+      store.dispatch('setPlayerTracks', []);
+      store.dispatch('setPlayerCurrentTrack', null);
+    });
+
     return {
       searchTracksLoading,
       searchResults,
@@ -131,7 +142,6 @@ export default {
       lastPage,
       handleClickTrack,
       currentTrack,
-      handleSetCurrentTrack
     };
   },
 };

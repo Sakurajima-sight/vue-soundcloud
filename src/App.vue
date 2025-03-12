@@ -10,8 +10,9 @@
     <!-- 已授权后显示应用内容 -->
     <div v-if="spotifyPlayer">
       <navbar :showGenres="$route.path === '/'" />
-      <el-main>
+      <el-main :style="`padding: ${!!playerCurrentTrack ? '20px 20px 90px' : '20px'}`">
         <router-view />
+        <Player />
       </el-main>
     </div>
   </div>
@@ -19,6 +20,7 @@
 
 <script>
 import Navbar from './components/Navbar.vue';
+import Player from './components/Player.vue';
 import SpotifyUserClient from '@/utils/SpotifyUserClient';
 import { onMounted, ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
@@ -26,6 +28,7 @@ import { useStore } from 'vuex';
 export default {
   components: {
     Navbar,
+    Player
   },
   setup() {
     const store = useStore();
@@ -34,6 +37,7 @@ export default {
     const spotifyPlayer = computed(() => store.getters.spotifyPlayer);
     const code = ref(new URLSearchParams(window.location.search).get('code')); // 获取 URL 中的授权码
     const accessToken = computed(() => store.getters.accessToken);
+    const playerCurrentTrack = computed(() => store.getters.playerCurrentTrack);
 
     const authorize = () => {
       const authUrl = `https://accounts.spotify.com/authorize?client_id=${SpotifyUserClient.clientId}&response_type=code&redirect_uri=${encodeURIComponent(SpotifyUserClient.redirectUri)}&scope=${encodeURIComponent(SpotifyUserClient.scope)}`;
@@ -126,7 +130,8 @@ export default {
     return {
       authorize,
       accessToken,
-      spotifyPlayer
+      spotifyPlayer,
+      playerCurrentTrack
     };
   }
 };
