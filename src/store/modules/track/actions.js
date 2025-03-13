@@ -1,12 +1,12 @@
 import LastfmClient from '@/utils/xhrWrapperLastfm';
-import SpotifyUserClient from '@/utils/SpotifyUserClient';
+import SpotifyPublicClient from '@/utils/SpotifyPublicClient';
 
 export default {
   async getTrackInfo({ commit }, { trackName, artistName, artistImageUrl }) {
     commit('GET_TRACK_INFO'); // 触发加载状态
 
     try {
-      const responseSpotify = await SpotifyUserClient.getInstance().get({
+      const responseSpotify = await SpotifyPublicClient.getInstance().get({
         url: 'search',
         query: {
           q: `${trackName} ${artistName}`,       // 使用 Last.fm 中获取的歌曲名
@@ -82,7 +82,7 @@ export default {
       const responseSpotify = await Promise.all(
         similarTracks.map(async (similarTracksName, index) => {
           const similarTrackArtist = similarTracksArtists[index]; 
-          const response = await SpotifyUserClient.getInstance().get({
+          const response = await SpotifyPublicClient.getInstance().get({
             url: 'search',
             query: {
               q: `${similarTracksName} ${similarTrackArtist}`,       // 使用 Last.fm 中获取的歌曲名
@@ -96,7 +96,7 @@ export default {
             (track) => track.name === similarTracksName
           );
 
-          const artistResponse = await SpotifyUserClient.getArtistInfo(response.tracks.items[0].artists[0].id);  
+          const artistResponse = await SpotifyPublicClient.getArtistInfo(response.tracks.items[0].artists[0].id);  
 
           return {
             ...response.tracks.items[0],  // 获取 Spotify 返回的第一条结果

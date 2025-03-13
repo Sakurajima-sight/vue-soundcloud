@@ -1,6 +1,6 @@
 <template>
   <!-- 判断是否有激活的音轨，如果有则显示播放器 -->
-  <div class="playerWrapper" v-if="!!playerCurrentTrack">
+  <div class="playerWrapper" v-if="spotifyPlayer && !!playerCurrentTrack">
     <div class="trackDetails">
       <img :src="playerCurrentTrack.album.images[0].url" alt="">
       <div class="titleWrapper">
@@ -55,7 +55,7 @@ import _ from 'lodash';
 export default {
   setup(props) {   
     const store = useStore();
-    const player = computed(() => store.getters.spotifyPlayer);
+    const spotifyPlayer = computed(() => store.getters.spotifyPlayer);
     const seekRange = ref(0);
     const isPlay = ref(null);
     const startMouseDown = ref(false);
@@ -68,8 +68,8 @@ export default {
     const playerCurrentTrack = computed(() => store.getters.playerCurrentTrack);
 
     const handlePlayPause = async () => {
-      if (player && isPlay.value) {
-        await player.value.pause();
+      if (spotifyPlayer && isPlay.value) {
+        await spotifyPlayer.value.pause();
         isPlay.value = false;
         showSlider.value = true;
         store.dispatch('isPlayerPlay', isPlay.value);
@@ -90,7 +90,7 @@ export default {
         }
         else if (tempTrack.value.uri == playerCurrentTrack.value.uri) {
           for (let i = 0; i < 5; i++) {
-            await player.value.resume();
+            await spotifyPlayer.value.resume();
           }
           showSlider.value = true;
         }
@@ -126,8 +126,8 @@ export default {
 
     const isTrackFinished = ref(false)
     const updatePlayerState = async () => {
-      if (player && isPlay.value) {
-        const state = await player.value.getCurrentState();
+      if (spotifyPlayer && isPlay.value) {
+        const state = await spotifyPlayer.value.getCurrentState();
         if (!state.paused) {
           showSlider.value = true;
           await store.dispatch('isPlayerPlay', showSlider.value);
@@ -144,15 +144,15 @@ export default {
     };
 
     watch(() => isPlay, (nextIsPlay, prevIsPlay) => {
-      if (nextIsPlay !== prevIsPlay && player) {
+      if (nextIsPlay !== prevIsPlay && spotifyPlayer) {
         handlePlayPause();
       }
     });
 
     watch(() => playerCurrentTrack, (nextCurrentTrack, prevCurrentTrack) => {
       if (nextCurrentTrack && !_.isEqual(nextCurrentTrack, prevCurrentTrack)) {
-        if (!nextCurrentTrack && player) {
-          player.value.pause();
+        if (!nextCurrentTrack && spotifyPlayer) {
+          spotifyPlayer.value.pause();
           store.dispatch('setPlayerCurrentTime', 0);
           store.dispatch('setPlayerDuration', 0);
           seekRange.value = 0;
@@ -176,7 +176,7 @@ export default {
     const tempTrack = ref(null);
     watch(playerCurrentTrack, async(nextCurrentTrack, prevCurrentTrack) => {
       clearInterval(intervalId);
-      await player.value.pause();
+      await spotifyPlayer.value.pause();
       seekRange.value = 0;
       store.dispatch('setPlayerCurrentTime', 0);
       store.dispatch('setPlayerDuration', 0);
@@ -206,7 +206,7 @@ export default {
         } else {
           store.dispatch('setPlayerCurrentTime', 0);
           seekRange.value = 0;
-          player.pause();
+          spotifyPlayer.pause();
           if (props.setCurrentTrackIsPlay) {
             props.setCurrentTrackIsPlay(false);
           }
@@ -214,7 +214,7 @@ export default {
         isTrackFinished.value = false;
       }
       if (props.setCurrentTrackIsPlay) {
-        if (player && isPlay.value) {
+        if (spotifyPlayer && isPlay.value) {
           props.setCurrentTrackIsPlay(true);
         } else {
           props.setCurrentTrackIsPlay(false);
@@ -230,7 +230,7 @@ export default {
         // 监听 mousedown 事件，表示鼠标按下
         seekSliderButtonElement.addEventListener('mousedown', async() => {
           clearInterval(intervalId);
-          await player.value.pause();
+          await spotifyPlayer.value.pause();
           startMouseDown.value = true;
         });
 
@@ -239,7 +239,7 @@ export default {
           if (startMouseDown.value) {
             handleSeekChange(seekRange.value);
             for (let i = 0; i < 5; i++) {
-              await player.value.resume();
+              await spotifyPlayer.value.resume();
             }
             startMouseDown.value = false;
             setTimeout(() => {
@@ -251,8 +251,8 @@ export default {
     });
 
     onUnmounted(() => {
-      if (player.value) {
-        player.value.pause();
+      if (spotifyPlayer.value) {
+        spotifyPlayer.value.pause();
         seekRange.value = 0;
         store.dispatch('setPlayerCurrentTime', 0);
         store.dispatch('setPlayerDuration', 0);
@@ -270,7 +270,7 @@ export default {
       nextIcon,
       previousIcon,
       secondsToTime,
-      player,
+      spotifyPlayer,
       playerCurrentTrack,
       playerCurrentTime,
       playerDuration,

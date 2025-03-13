@@ -22,13 +22,5 @@ export default {
   CLEAR_TRACKS: (state) => {
     state.getTracksLoading = false;  // 重置加载状态
     state.tracks = [];  // 清空曲目数据
-  },
-
-  SET_ACCESS_TOKEN: (state, token) => {
-    state.accessToken = token;
-  },
-
-  SET_SPOTIFY_PLAYER: (state, player) => {
-    state.spotifyPlayer = player;
   }
 };

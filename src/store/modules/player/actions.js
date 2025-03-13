@@ -1,9 +1,9 @@
 export default {
-  pause: (context) => {
-    context.commit('PAUSE');
-  },
   setPlayerCurrentTime: (context, time) => {
     context.commit('SET_PLAYER_CURRENT_TIME', time);
+  },
+  setAccessToken: (context, token) => {
+    context.commit('SET_ACCESS_TOKEN', token); 
   },
   setPlayerDuration: (context, time) => {
     context.commit('SET_PLAYER_DURATION', time);

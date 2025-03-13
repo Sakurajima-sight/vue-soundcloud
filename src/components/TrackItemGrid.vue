@@ -5,6 +5,18 @@
       <div
         :style="{ backgroundImage: `url(${trackData.album.images[0].url})` }"
         :class="`artwork${(playerCurrentTrack && (playerCurrentTrack.id === trackData.id)) ? ' active' : ''}`"
+        v-if="!spotifyPlayer"
+        @click="authorize"
+      >
+        <div class="playOverlay">
+          <font-awesome-icon :icon="['fas', 'play-circle']" class="play" />
+        </div>
+      </div>
+      <!-- 使用专辑的第一张图片作为背景图 --> 
+      <div
+        :style="{ backgroundImage: `url(${trackData.album.images[0].url})` }"
+        :class="`artwork${(playerCurrentTrack && (playerCurrentTrack.id === trackData.id)) ? ' active' : ''}`"
+        v-if="spotifyPlayer"
         @click="onClickTrack(trackData)"
       >
         <div class="playOverlay">
@@ -37,6 +49,7 @@
 <script>
 import { ref, computed, onMounted } from 'vue';  // 引入 Vue 3 中需要的 API
 import { useStore } from 'vuex';  // 引入 Vuex 的 useStore
+import SpotifyPublicClient from '@/utils/SpotifyPublicClient';
 import SpotifyUserClient from '@/utils/SpotifyUserClient';
 
 export default {
@@ -53,14 +66,21 @@ export default {
 
     // 从 Vuex 获取计算属性
     const store = useStore();
+    const spotifyPlayer = computed(() => store.getters.spotifyPlayer);
     const isPlay = computed(() => store.getters.isPlay);
     const playerCurrentTrack = computed(() => store.getters.playerCurrentTrack);
-    
+
+    const authorize = () => {
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${SpotifyUserClient.clientId}&response_type=code&redirect_uri=${encodeURIComponent(SpotifyUserClient.redirectUri)}&scope=${encodeURIComponent(SpotifyUserClient.scope)}`;
+      console.log('Spotify Authorization URL:', authUrl);
+      window.location.href = authUrl;  // 重定向到 Spotify 授权页面
+    };
+
     // 使用 onMounted 生命周期钩子
     onMounted(async () => {
       try {
         const artistId = props.trackData.artists[0].id;  // 获取艺术家 ID
-        const artistInfo = await SpotifyUserClient.getArtistInfo(artistId);  // 获取艺术家信息
+        const artistInfo = await SpotifyPublicClient.getArtistInfo(artistId);  // 获取艺术家信息
         
         // 返回的 artistInfo 数据结构如下，找到第一个图片并设置为头像
         if (artistInfo.images && artistInfo.images.length > 0) {
@@ -75,9 +95,11 @@ export default {
     });
 
     return {
+      spotifyPlayer,
       artistImage,
       isPlay,
-      playerCurrentTrack
+      playerCurrentTrack,
+      authorize
     };
   },
 };
@@ -110,7 +132,7 @@ export default {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, .8);
+    background: rgba(255, 255, 255, .5);
     left: 0;
     top: 0;
     display: flex;

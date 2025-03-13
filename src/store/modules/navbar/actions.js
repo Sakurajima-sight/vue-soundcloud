@@ -1,4 +1,4 @@
-import SpotifyUserClient from '@/utils/SpotifyUserClient';  // 引入 Spotify API 客户端
+import SpotifyPublicClient from '@/utils/SpotifyPublicClient';  // 引入 Spotify API 客户端
 
 export default {
   // 使用 async/await 处理异步操作
@@ -7,7 +7,7 @@ export default {
 
     try {
       // 调用 Spotify API 获取搜索结果
-      const response = await SpotifyUserClient.getInstance().get({
+      const response = await SpotifyPublicClient.getInstance().get({
         url: 'search',  // 修改为 Spotify 的搜索 API 路径
         query: {
           q: query,  // 用户搜索的关键词

@@ -2,11 +2,6 @@ export default {
   // 获取 tracks 是否正在加载的状态
   getTracksLoading: (state) => state.getTracksLoading,
 
-  // 获取当前的访问令牌
-  accessToken: (state) => state.accessToken,
-
-  spotifyPlayer: (state) => state.spotifyPlayer,
-
   // 获取 tracks 的数据
   tracks: (state) => state.tracks,
 

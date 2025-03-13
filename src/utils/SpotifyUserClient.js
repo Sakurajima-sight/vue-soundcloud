@@ -134,6 +134,20 @@ class SpotifyUserClient {
     }
   }
 
+  // 获取用户信息
+  static async getUserInfo() {
+    try {
+      // 使用请求包装器获取用户信息
+      const response = await SpotifyUserClient.getInstance().get({
+        url: 'me',  // Spotify API 用户信息端点
+      });
+      return response;  // 返回用户信息
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      throw new Error('Unable to fetch user information');
+    }
+  }
+
   // 获取 SpotifyUserClient 实例
   static getInstance() {
     if (!this.instance) {

@@ -1,5 +1,5 @@
 import LastfmClient from '@/utils/xhrWrapperLastfm'; // 引入 Lastfm API 客户端
-import SpotifyUserClient from '@/utils/SpotifyUserClient';
+import SpotifyPublicClient from '@/utils/SpotifyPublicClient';
 
 export default {
   // 获取用户资料
@@ -43,7 +43,7 @@ export default {
 
       const similarArtistsId = await Promise.all(
         filteredArtists.slice(0, 4).map(async (artistsName) => {
-          const responseSpotify = await SpotifyUserClient.getInstance().get({
+          const responseSpotify = await SpotifyPublicClient.getInstance().get({
             url: 'search',
             query: {
               q: artistsName,       // 使用 Last.fm 中获取的歌曲名
@@ -59,7 +59,7 @@ export default {
 
       const similarArtistsResults = await Promise.all(
         similarArtistsId.map(async (artistId) => {
-          const responseSpotify = await SpotifyUserClient.getArtistInfo(artistId);  
+          const responseSpotify = await SpotifyPublicClient.getArtistInfo(artistId);  
 
           return responseSpotify;  // 获取第一条匹配的结果
         })
@@ -87,7 +87,7 @@ export default {
       let maxListeners = Math.max(...listeners);
       const responseSpotify = await Promise.all(
         artistTopTracks.map(async (artistTopTracksName) => {
-          const response = await SpotifyUserClient.getInstance().get({
+          const response = await SpotifyPublicClient.getInstance().get({
             url: 'search',
             query: {
               q: `${artistTopTracksName} ${name}`,       // 使用 Last.fm 中获取的歌曲名

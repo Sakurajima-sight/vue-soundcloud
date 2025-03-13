@@ -14,7 +14,11 @@
         <div class="track-name">{{ trackData.name }}</div>
         <!-- Play Track 按钮和数量 -->
         <div class="play-btn-container">
-          <el-button class="play-btn" @click="onClickTrack(trackData)">
+          <el-button class="play-btn" @click="authorize" v-if="!spotifyPlayer">
+            <font-awesome-icon :icon="['fas', 'play']" />
+            <span class="play-text">Play Track</span>
+          </el-button>
+          <el-button class="play-btn" @click="onClickTrack(trackData)" v-if="spotifyPlayer">
             <font-awesome-icon :icon="['fas', 'play']" />
             <span class="play-text">Play Track</span>
           </el-button>
@@ -96,6 +100,9 @@
 
 <script>
 import { numberSeparator } from '@/utils/number';
+import { ref, computed } from 'vue';  // 引入 Vue 3 中需要的 API
+import { useStore } from 'vuex';  // 引入 Vuex 的 useStore
+import SpotifyUserClient from '@/utils/SpotifyUserClient';
 
 export default {
   props: {
@@ -107,7 +114,9 @@ export default {
     },
   },
   setup(props) {
-    
+    const store = useStore();
+    const spotifyPlayer = computed(() => store.getters.spotifyPlayer);
+
     // Step 1: 提取所有的URL
     const urlRegex = /<a href="(.*?)">.*?<\/a>/g;
     let urls = [];
@@ -120,10 +129,19 @@ export default {
 
     // Step 2: 清洗文本，去掉<a>标签
     const cleanedText = props.trackData.summary.replace(urlRegex, '');
+
+    const authorize = () => {
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${SpotifyUserClient.clientId}&response_type=code&redirect_uri=${encodeURIComponent(SpotifyUserClient.redirectUri)}&scope=${encodeURIComponent(SpotifyUserClient.scope)}`;
+      console.log('Spotify Authorization URL:', authUrl);
+      window.location.href = authUrl;  // 重定向到 Spotify 授权页面
+    };
+
     return {
       numberSeparator,
       urls,
-      cleanedText
+      cleanedText,
+      spotifyPlayer,
+      authorize
     };
   },
 };

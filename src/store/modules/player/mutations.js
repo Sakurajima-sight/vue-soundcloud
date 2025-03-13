@@ -1,6 +1,9 @@
 export default {
-  PAUSE: (state) => {
-    state.isPlay = false;
+  SET_SPOTIFY_PLAYER: (state, player) => {
+    state.spotifyPlayer = player;
+  },
+  SET_ACCESS_TOKEN: (state, token) => {
+    state.accessToken = token;
   },
   SET_PLAYER_CURRENT_TIME: (state, time) => {
     state.playerCurrentTime = time;

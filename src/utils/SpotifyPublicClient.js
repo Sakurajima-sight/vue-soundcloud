@@ -99,6 +99,7 @@ class SpotifyPublicClient {
     };
   }
 
+  // 获取艺术家信息
   static async getArtistInfo(artistId) {
     try {
       const response = await SpotifyPublicClient.getInstance().get({

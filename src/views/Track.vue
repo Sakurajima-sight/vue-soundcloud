@@ -43,7 +43,7 @@ import Sticky from 'vue-sticky-directive';
 import CommentItem from '@/components/CommentItem.vue';
 import TrackItemRow from '@/components/TrackItemRow.vue';
 import Player from '@/components/Player.vue';
-import SpotifyUserClient from '@/utils/SpotifyUserClient';
+import SpotifyPublicClient from '@/utils/SpotifyPublicClient';
 import _ from 'lodash';
 
 
@@ -86,11 +86,11 @@ export default {
     }
 
     const fetchTrackData = async (trackID) => {
-      const trackResponse = await SpotifyUserClient.getInstance().get({
+      const trackResponse = await SpotifyPublicClient.getInstance().get({
         url: `tracks/${trackID}`,
       });
 
-      artistMessage.value = await SpotifyUserClient.getArtistInfo(trackResponse.artists[0].id);
+      artistMessage.value = await SpotifyPublicClient.getArtistInfo(trackResponse.artists[0].id);
 
       // 发起 Vuex 的动作请求
       store.dispatch(

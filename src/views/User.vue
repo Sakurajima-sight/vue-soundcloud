@@ -78,7 +78,7 @@ import { onMounted, watch, computed, ref, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router'; // 引入 Vue Router 中的 useRoute
 import FollowerItem from '../components/FollowerItem.vue';
 import Sticky from 'vue-sticky-directive';
-import SpotifyUserClient from '@/utils/SpotifyUserClient'; // 引入 Spotify API 客户端
+import SpotifyPublicClient from '@/utils/SpotifyPublicClient'; // 引入 Spotify API 客户端
 import TrackItemRow from '@/components/TrackItemRow.vue';
 import Player from '@/components/Player.vue';
 import { numberSeparator } from '@/utils/number';
@@ -111,7 +111,7 @@ export default {
 
     // 获取用户资料和关注列表
     const fetchUserData = async(userID) => {
-      userMessage.value = await SpotifyUserClient.getArtistInfo(userID);
+      userMessage.value = await SpotifyPublicClient.getArtistInfo(userID);
       store.dispatch('getUserProfile', userMessage.value.name);
       store.dispatch('getUserFollowings', userMessage.value.name);
       artistImage.value = userMessage.value.images[0].url

@@ -1,4 +1,4 @@
-import SpotifyUserClient from '@/utils/SpotifyUserClient';
+import SpotifyPublicClient from '@/utils/SpotifyPublicClient';
 import LastfmAPI from '@/utils/xhrWrapperLastfm';
 
 export default {
@@ -28,7 +28,7 @@ export default {
       // 使用 Spotify API 搜索每首曲目，获取相关的结果
       const spotifyResults = await Promise.all(
         topTracks.map(async (trackName) => {
-          const response = await SpotifyUserClient.getInstance().get({
+          const response = await SpotifyPublicClient.getInstance().get({
             url: 'search',
             query: {
               q: trackName,       // 使用 Last.fm 中获取的歌曲名
@@ -52,10 +52,6 @@ export default {
   // 用于重置或清除 tracks 数据的状态
   clearTracks: (context) => {
     context.commit('CLEAR_TRACKS');  // 提交 mutation 清空 tracks 数据
-  },
-  
-  setAccessToken: (context, token) => {
-    context.commit('SET_ACCESS_TOKEN', token);  // data 是传入的新的活动曲目数据
   },
   
   setSpotifyPlayer: (context, player) => {

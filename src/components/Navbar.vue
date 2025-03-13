@@ -31,6 +31,8 @@
               clearable
             />
           </form>
+          <el-button @click="authorize" type="primary" class="signUp" v-if="!spotifyPlayer"> SIGN UP </el-button>
+          <img v-if="spotifyPlayer" :src="userInfo.images[0].url" alt="User Image" class="userImage" />
         </div>
       </el-menu>
     </el-col>
@@ -82,6 +84,7 @@ import { ref, computed, onMounted, watch } from 'vue';  // 引入 Vue 3 的响�
 import { useStore } from 'vuex';  // 引入 Vuex 的 useStore
 import { Search, Loading } from '@element-plus/icons-vue';  // 引入搜索图标
 import { useRoute } from 'vue-router';
+import SpotifyUserClient from '@/utils/SpotifyUserClient';
 
 export default {
   props: {
@@ -102,12 +105,18 @@ export default {
     ]);
     const searchIcon = Search;   // 设置搜索图标
     const loadIcon = Loading;
+    const userInfo = ref(null);
 
     // 从 Vuex 获取计算属性
     const activeGenre = computed(() => store.getters.activeGenre);  // 当前活动的 genre
     const getTracksLoading = computed(() => store.getters.getTracksLoading);  // 获取加载状态
     const searchQuery = computed(() => store.getters.searchQuery);
     const searchTracksLoading = computed(() => store.getters.searchTracksLoading);
+
+    // 从 Vuex 获取 accessToken
+    const spotifyPlayer = computed(() => store.getters.spotifyPlayer);
+    const code = ref(new URLSearchParams(window.location.search).get('code')); // 获取 URL 中的授权码
+    const accessToken = computed(() => store.getters.accessToken);
 
     // 获取指定类别的曲目
     const getGenreItems = (genre) => {
@@ -124,9 +133,97 @@ export default {
       }
     };
 
+    const authorize = () => {
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${SpotifyUserClient.clientId}&response_type=code&redirect_uri=${encodeURIComponent(SpotifyUserClient.redirectUri)}&scope=${encodeURIComponent(SpotifyUserClient.scope)}`;
+      console.log('Spotify Authorization URL:', authUrl);
+      window.location.href = authUrl;  // 重定向到 Spotify 授权页面
+    };
+
+    const getAccessToken = async (code) => {
+      try {
+        const tokenData = await SpotifyUserClient.fetchToken({ code });
+        store.dispatch('setAccessToken', tokenData.access_token);
+        SpotifyUserClient.getInstance().accessToken = accessToken.value; 
+        console.log('Access Token:', SpotifyUserClient.getInstance().accessToken);
+        userInfo.value = await SpotifyUserClient.getUserInfo();
+      } catch (error) {
+        console.error('Error fetching access token:', error);
+      }
+    };
+
+    // 初始化 Spotify Web Playback SDK
+    const initializeSpotifyPlayer = () => {
+      const player = ref(null);
+      const errorMessage = ref("");
+
+      // 动态加载 Spotify Player SDK
+      const script = document.createElement('script');
+      script.src = 'https://sdk.scdn.co/spotify-player.js';
+      script.async = true;
+      document.body.appendChild(script);
+
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        if (accessToken.value && window.Spotify) {
+          player.value = new Spotify.Player({
+            name: 'vue-app',
+            getOAuthToken: (cb) => { cb(accessToken.value); },
+            volume: 1.0,
+          });
+
+          // 错误处理
+          player.value.on('initialization_error', ({ message }) => {
+            errorMessage.value = message;
+          });
+          player.value.on('authentication_error', ({ message }) => {
+            errorMessage.value = message;
+          });
+          player.value.on('account_error', ({ message }) => {
+            errorMessage.value = message;
+          });
+          player.value.on('playback_error', ({ message }) => {
+            errorMessage.value = message;
+          });
+
+          // 播放器准备好时的回调
+          player.value.on('ready', async({ device_id }) => {
+            console.log('Spotify 播放器准备就绪，设备 ID:', device_id);
+            // 调用 PUT 请求
+            await SpotifyUserClient.getInstance().put({
+              url: 'me/player',  // API 端点
+              data: { device_ids: [device_id] },  // 请求数据
+            });
+            // 将 player 存入 Vuex 以供全局使用
+            store.dispatch('setSpotifyPlayer', player.value);
+          });
+
+          // 直接在播放器准备好后连接
+          player.value.connect().then(success => {
+            if (success) {
+              console.log('Web Playback SDK 成功连接到 Spotify!');
+            } else {
+              console.error('无法连接到 Web Playback SDK');
+            }
+          });
+        } else {
+          errorMessage.value = 'Spotify Web SDK 加载失败，请检查网络连接。';
+        }
+      };
+    };
+
     const handleClearSearch = () => { 
       store.dispatch('clearSearch');
     }
+
+    // 监听 accessToken 的变化
+    watch(
+      () => accessToken.value,  // 监听 accessToken 的变化
+      (newAccessToken, oldAccessToken) => {
+        // 只有当 accessToken 从 null 或 undefined 变为有值时才初始化播放器
+        if (newAccessToken && !oldAccessToken) {
+          initializeSpotifyPlayer();  // 初始化播放器
+        }
+      }
+    );
 
     // 观察 `query` 变化，如果 `query` 清空，则清除搜索
     watch([query, searchQuery], ([newQuery, newSearchQuery]) => {
@@ -138,6 +235,9 @@ export default {
     const searchRef = ref(null);
     // 在页面挂载时执行一次获取 'house' 类型的曲目
     onMounted(() => {
+      if (code && !accessToken.value) {
+        getAccessToken(code.value);  // 获取 access_token
+      }
       getGenreItems('house');
     });
 
@@ -155,7 +255,10 @@ export default {
       getGenreItems,
       searchRef,
       handleSearch,
-      route
+      route,
+      authorize,
+      spotifyPlayer,
+      userInfo
     };
   },
 };
@@ -184,6 +287,11 @@ export default {
     width: 170px;
     margin-right: 20px;  /* logo 和搜索框的间距 */
   }
+  .searchContainer {
+    padding-right: 20px;
+    display: flex;
+    
+  }
   .searchInput {
     width: 280px;
     margin: 13px 0;
@@ -194,6 +302,28 @@ export default {
     outline: none;  /* 去除外边框 */
     color: #fff;  /* 文字颜色 */
   }
+
+  .signUp {
+    margin-top: 13px;
+    margin-left: 10px;
+    width: 70px;   /* 设置按钮的宽度 */
+    height: 32px;  /* 设置按钮的高度 */
+    border: none;  /* 去掉默认的边框 */
+    background-color: #f1f1f1; /* 按钮的背景色，可以根据需求更改 */
+    color: #2b2b2b;
+    font-weight: bold;
+  }
+  
+  .userImage {
+    width: 40px;  /* 设置宽度 */
+    height: 40px; /* 设置高度，确保宽高相等 */
+    border-radius: 50%;  /* 设置为圆形 */
+    object-fit: cover;  /* 确保图片内容不变形，裁剪并填充 */
+    border: 2px solid #fff;  /* 可选：给图片添加一个白色边框 */
+    margin-top: 8px;
+    margin-left: 10px;
+  }
+
   .genresMenu {
     width: 100%;
     background: #fff;

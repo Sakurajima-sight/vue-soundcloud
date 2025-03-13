@@ -3,6 +3,19 @@
     <div
       :style="{ backgroundImage: `url(${trackData.album_image})` }"
       class="artwork"
+      v-if="!spotifyPlayer"
+    >
+      <div
+        :class="`playOverlay${(!isPlay && playerCurrentTrack && playerCurrentTrack.id === trackData.id) ? ' active' : ''}`" 
+        @click="authorize"
+      >
+        <font-awesome-icon :icon="['fas', 'play']" />
+      </div>
+    </div>
+    <div
+      :style="{ backgroundImage: `url(${trackData.album_image})` }"
+      class="artwork"
+      v-if="spotifyPlayer"
     >
       <div
         :class="`playOverlay${(!isPlay && playerCurrentTrack && playerCurrentTrack.id === trackData.id) ? ' active' : ''}`" 
@@ -50,8 +63,10 @@
 
 <script>
 import { useStore } from 'vuex';
-import { computed } from 'vue';
+import { computed,  } from 'vue';
 import { numberSeparator } from '@/utils/number';
+import SpotifyUserClient from '@/utils/SpotifyUserClient';
+
 export default {
   props: {
     itemKey: {
@@ -67,6 +82,7 @@ export default {
 
   setup() {
     const store = useStore();  // 使用 Vuex 的 useStore hook
+    const spotifyPlayer = computed(() => store.getters.spotifyPlayer);
     const isPlay = computed(() => store.getters.isPlay);
     const playerCurrentTrack = computed(() => store.getters.playerCurrentTrack);
 
@@ -75,11 +91,19 @@ export default {
       store.dispatch('setPlayerCurrentTrack', null);
     }
 
+    const authorize = () => {
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${SpotifyUserClient.clientId}&response_type=code&redirect_uri=${encodeURIComponent(SpotifyUserClient.redirectUri)}&scope=${encodeURIComponent(SpotifyUserClient.scope)}`;
+      console.log('Spotify Authorization URL:', authUrl);
+      window.location.href = authUrl;  // 重定向到 Spotify 授权页面
+    };
+
     return {
+      spotifyPlayer,
       playerCurrentTrack,
       isPlay,
       numberSeparator,
-      handleClickTrack
+      handleClickTrack,
+      authorize
     }
   },
 };
