@@ -9,7 +9,8 @@ const defaultState = {
   playerDuration: 0,
   playerTracks: [],
   playerCurrentTrack: null,
-  isPlay: false
+  isPlay: false,
+  currentUrl: localStorage.getItem('currentUrl') || null
 };
 
 export default {

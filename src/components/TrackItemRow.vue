@@ -92,6 +92,8 @@ export default {
     }
 
     const authorize = () => {
+      let currentUrl = window.location.href;
+      store.dispatch("setCurrentUrl", currentUrl);
       const authUrl = `https://accounts.spotify.com/authorize?client_id=${SpotifyUserClient.clientId}&response_type=code&redirect_uri=${encodeURIComponent(SpotifyUserClient.redirectUri)}&scope=${encodeURIComponent(SpotifyUserClient.scope)}`;
       console.log('Spotify Authorization URL:', authUrl);
       window.location.href = authUrl;  // 重定向到 Spotify 授权页面

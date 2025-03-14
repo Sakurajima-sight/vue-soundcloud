@@ -5,5 +5,6 @@ export default {
   playerDuration: state => state.playerDuration,
   playerTracks: state => state.playerTracks,
   playerCurrentTrack: state => state.playerCurrentTrack,
-  isPlay: (state) => state.isPlay
+  isPlay: (state) => state.isPlay,
+  currentUrl: (state) => state.currentUrl
 };

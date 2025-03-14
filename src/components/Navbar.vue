@@ -83,7 +83,7 @@
 import { ref, computed, onMounted, watch } from 'vue';  // 引入 Vue 3 的响应式工具
 import { useStore } from 'vuex';  // 引入 Vuex 的 useStore
 import { Search, Loading } from '@element-plus/icons-vue';  // 引入搜索图标
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import SpotifyUserClient from '@/utils/SpotifyUserClient';
 
 export default {
@@ -96,6 +96,7 @@ export default {
   setup() {
     const store = useStore();  // 获取 Vuex store
     const route = useRoute();
+    const router = useRouter();
 
     // 响应式数据
     const query = ref('');  // 搜索文本
@@ -117,6 +118,8 @@ export default {
     const spotifyPlayer = computed(() => store.getters.spotifyPlayer);
     const code = ref(new URLSearchParams(window.location.search).get('code')); // 获取 URL 中的授权码
     const accessToken = computed(() => store.getters.accessToken);
+  
+    const currentUrl = computed(() => store.getters.currentUrl);
 
     // 获取指定类别的曲目
     const getGenreItems = (genre) => {
@@ -221,6 +224,9 @@ export default {
         // 只有当 accessToken 从 null 或 undefined 变为有值时才初始化播放器
         if (newAccessToken && !oldAccessToken) {
           initializeSpotifyPlayer();  // 初始化播放器
+          const parsedUrl = new URL(currentUrl.value);
+          const routerPath = parsedUrl.pathname; // 获取路径部分
+          router.push(routerPath)
         }
       }
     );

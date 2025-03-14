@@ -19,5 +19,9 @@ export default {
   },
   IS_PLAYER_PLAY: (state, isPlay) => {
     state.isPlay = isPlay;
-  }
+  },
+  SET_CURRENT_URL: (state, currentUrl) => {
+    state.currentUrl = currentUrl;
+    localStorage.setItem('currentUrl', currentUrl);
+  },  
 };

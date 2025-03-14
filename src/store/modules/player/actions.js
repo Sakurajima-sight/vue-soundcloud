@@ -17,4 +17,7 @@ export default {
   isPlayerPlay: (context, isPlay) => {
     context.commit('IS_PLAYER_PLAY', isPlay);
   },
+  setCurrentUrl: (context, currentUrl) => {
+    context.commit('SET_CURRENT_URL', currentUrl);
+  }  
 };
