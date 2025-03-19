@@ -9,7 +9,7 @@
         :xl="16"
         class="itemsWrapper"
       >
-        <el-row :gutter="15">
+        <el-row :gutter="15" v-if="searchResults.length === 0">
           <track-item-grid
             v-for="track in (searchResults.length > 0 ? searchResults : tracks)"
             :key="track.id" 
@@ -90,17 +90,17 @@ export default {
           document.documentElement.scrollHeight - 50;
 
         if (bottomOfWindow && !getTracksLoading.value) {
-          if (searchQuery.value) {
-            store.dispatch('search', {
-              page: lastSearchPage.value + 1,
-              query: searchQuery.value,
-            });
-          } else {
-            const nextPage = lastPage.value ? lastPage.value + 1 : page.value + 1;
-            getItems(activeGenre.value || 'house', nextPage);
-          }
+          const nextPage = lastPage.value ? lastPage.value + 1 : page.value + 1;
+          getItems(activeGenre.value || 'house', nextPage);
         }
-      };
+
+        if (bottomOfWindow && searchQuery.value && !searchTracksLoading.value) {
+          store.dispatch('search', {
+            page: lastSearchPage.value + 1,
+            query: searchQuery.value,
+          });
+        }
+      }
 
       window.addEventListener('scroll', handleScroll);
 

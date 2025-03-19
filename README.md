@@ -1,54 +1,108 @@
-# vue-soundcloud
+# **vue-soundcloud (Switched to Spotify API)**
+This project is a **fork of** [soroushchehresa/vue-soundcloud](https://github.com/soroushchehresa/vue-soundcloud?tab=readme-ov-file). However, due to changes in the API, certain aspects have been **modified and adapted** accordingly. Additionally, this project has been **fully rewritten in Vue 3** to ensure better performance and maintainability.
 
-This project no longer uses the SoundCloud API and has switched to using the Spotify API. For documentation on how to use the Spotify API, refer to the [Spotify API Documentation](https://developer.spotify.com/documentation/web-api/tutorials/getting-started).
+This project **no longer uses the SoundCloud API** and has now switched to using **Spotify API**. For detailed instructions on how to use the Spotify API, please refer to the [Spotify API Documentation](https://developer.spotify.com/documentation/web-api/tutorials/getting-started).
 
-## Environment Setup
+---
 
-1. **Node.js**
+## **📢 Project Status**
+This project is **currently just a demo**, with **basic functionality already implemented**, but it **has not been deployed to a production environment** yet. We will observe **user feedback** before deciding on further development.
 
-   This project recommends using **Node.js v22.14.0 (LTS)** for development and running. You can download and install Node.js from the following link: [Node.js Download](https://nodejs.org/zh-cn/download).
+---
 
-2. **Vue 3**
+## **📸 Screenshots**
+### **Desktop View:**
+<p align="center">
+  <img src="assets\Desktop.png" width="100%" />
+</p>
 
-   This project is built on Vue 3. If you're new to Vue.js, refer to the official documentation: [Vue.js Documentation](https://cn.vuejs.org/).
+### **Mobile View:**
+🚧 **Coming soon...** 🚧
 
-## How to Use
+---
 
-1. **Clone the Project**
+## **🛠️ Environment Setup**
 
-   Clone the project using the following command:
+### 1️⃣ **Install Node.js**
+This project recommends using **Node.js v22.14.0 (LTS)** for development and running.  
+You can download and install it from the [Node.js Official Website](https://nodejs.org/en/download).
 
-   ```sh
-   git clone https://github.com/Sakurajima-sight/vue-soundcloud.git
-   ```
+### 2️⃣ **Vue 3**
+This project is built with **Vue 3**.  
+If you are new to Vue.js, please refer to the official documentation: [Vue.js Documentation](https://vuejs.org/).
 
-2. **Install Dependencies**
+---
 
-   Run the following command to install the required dependencies:
+## **🚀 How to Use**
 
-   ```sh
-   npm install
-   ```
+### **1. Clone the Project**
+Use the following command to clone the project:
+```sh
+git clone https://github.com/Sakurajima-sight/vue-soundcloud.git
+```
 
-3. **Configure `.env` File**
+### **2. Install Dependencies**
+Run the following command to install the required dependencies:
+```sh
+npm install
+```
 
-   Configure a `.env` file in the root directory of the project and add your Spotify client ID and secret. For instructions on how to obtain these, visit the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard). Additionally, add your Last.fm API key. For more information on how to obtain it, visit the [Last.fm API Account](https://www.last.fm/api/accounts) and [Last.fm API Documentation](https://www.last.fm/api).
+### **3. Configure the `.env` File**
+Create a `.env` file in the **root directory** of the project and add your **Spotify API** and **Last.fm API** keys.
 
-4. **Development Mode**
+🔹 **How to Get a Spotify API Key?**  
+Visit the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
 
-   Run the following command to start the development server:
+🔹 **How to Get a Last.fm API Key?**  
+Visit the [Last.fm API Account](https://www.last.fm/api/accounts) and [Last.fm API Documentation](https://www.last.fm/api).
 
-   ```sh
-   npm run dev
-   ```
+💡 **Note:** The Spotify Player API **is only available to Spotify Premium users**. For more details, refer to the [Spotify Web Playback SDK documentation](https://developer.spotify.com/documentation/web-playback-sdk).
 
-   This will start a hot-reloading development server that you can access in your browser.
+#### **📌 Example `.env` File**
+```env
+VITE_SPOTIFY_CLIENT_ID=your_spotify_client_id
+VITE_SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+VITE_LASTFM_API_KEY=your_lastfm_api_key
+```
 
-5. **Production Mode**
+⚠️ **API Authentication Notice**
+- Spotify API requires **OAuth 2.0** authentication, and you may need to obtain an **Access Token**.
+- Follow the official guide for details: [Spotify Authentication Guide](https://developer.spotify.com/documentation/web-api/concepts/authorization).
 
-   If you're ready to deploy the app, use the following command to build and minify the app:
+---
 
-   ```sh
-   npm run build
-   ```
+### **4. Start Development Mode**
+Run the following command to start the development server:
+```sh
+npm run dev
+```
+After running, you can access the development server at **http://localhost:8080** in your browser.
 
+---
+
+### **5. Production Mode (Not Yet Deployed)**
+This project **has not been deployed to a production environment** yet. However, you can locally build and preview it using the following commands:
+
+#### **Build the project**
+```sh
+npm run build
+```
+#### **Preview the production version**
+```sh
+npm run preview
+```
+If deployment is planned in the future, consider the following platforms:
+- **Vercel / Netlify** (Recommended)
+- **GitHub Pages**
+- **Nginx / Apache**
+- **Docker Deployment**
+
+---
+
+## **📌 Summary**
+✅ This project has switched to **Spotify API** and supports **Last.fm API**.  
+✅ **Basic functionality is complete**, but **it remains a demo and has not been deployed**.  
+✅ **Spotify API is available only to Premium users**, so please ensure you have access.  
+✅ **Future development will depend on user feedback**—your suggestions are welcome! 🎵🎶  
+
+📢 **Feel free to Star ⭐ and support this project!** 🚀
